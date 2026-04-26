@@ -92,6 +92,13 @@ func (s *Service) AttachSource(ctx context.Context, input AttachSourceInput) (So
 	if strings.TrimSpace(input.SourceKey) == "" {
 		return SourceReference{}, errors.New("source key is required")
 	}
+	card, err := s.repo.GetCard(ctx, input.CardID)
+	if err != nil {
+		return SourceReference{}, err
+	}
+	if card == nil {
+		return SourceReference{}, fmt.Errorf("card %d not found", input.CardID)
+	}
 	return s.repo.AddSource(ctx, AddSourceParams{
 		CardID:       input.CardID,
 		SourceSystem: strings.TrimSpace(input.SourceSystem),
@@ -160,6 +167,13 @@ func (s *Service) ReviewWindow(ctx context.Context, limit int) (ReviewWindow, er
 		return ReviewWindow{}, err
 	}
 	return ReviewWindow{Now: now, DueCards: cards}, nil
+}
+
+func (s *Service) CardSchedule(ctx context.Context, cardID int64) (*CardSchedule, error) {
+	if cardID <= 0 {
+		return nil, errors.New("card id is required")
+	}
+	return s.repo.GetCardSchedule(ctx, cardID)
 }
 
 func (s *Service) RecordReview(ctx context.Context, input RecordReviewInput) (RecordReviewResult, error) {

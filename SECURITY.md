@@ -2,9 +2,9 @@
 
 ## Supported Versions
 
-This project is pre-`1.0` and currently contains planning documents plus the
-initial repository infrastructure scaffold. There is no shipped OpenStudy
-runner, skill, database schema, scheduler, install script, release workflow, or
+This project is pre-`1.0` and currently contains planning documents, internal
+storage/scheduler code, and the first OpenStudy JSON runner plus single-file
+skill. There is no install script, release workflow, release artifact, or
 hosted service yet.
 
 The supported code line is the current default branch until release artifacts

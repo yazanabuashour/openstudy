@@ -18,10 +18,10 @@ sensitive sample content.
 This repository has completed the first planning decision chain. Decision
 [`docs/decision/0001-openstudy-memorization-promotion.md`](docs/decision/0001-openstudy-memorization-promotion.md)
 accepted a narrow implementation path. The `os-ful` bead adds the first
-internal storage and scheduler layer, but public product behavior remains
-gated behind ordered Beads implementation work. No product API, runner
-behavior, skill contract, install script, release workflow, or executable eval
-harness is present in this repository yet.
+internal storage and scheduler layer, and `os-5v4` adds the first JSON runner
+and single-file skill. Install scripts, release workflow, automation runtime,
+and executable eval harnesses remain gated behind ordered Beads implementation
+work.
 
 The current planning ADR is
 [`docs/adr/0001-agentops-memorization-direction.md`](docs/adr/0001-agentops-memorization-direction.md).
@@ -51,20 +51,25 @@ OpenStudy uses two existing local projects as references:
 
 ## AgentOps Direction
 
-The expected agent-facing path is the AgentOps pattern: a single-file skill
-gives the agent task policy, and a local JSON runner performs stateful
-memorization operations through structured JSON. That public shape is not
-implemented yet. Internal storage and scheduler behavior exists for future
-runner work; the exact runner request and response schema, command flags,
-validation model, and automation surface remain deferred to later beads.
+The agent-facing path is the AgentOps pattern: a single-file skill gives the
+agent task policy, and a local JSON runner performs stateful memorization
+operations through structured JSON.
 
-## Deferred Runner Interface
+## Runner Interface
 
-OpenStudy does not currently ship an `openstudy` runner, skill, install path, or
-public command surface. Candidate domains from the planning work may include
-deck/card management, review sessions, answer recording, grading evidence, and
-review-window automation, but those names are placeholders until promoted by a
-decision bead and implemented by the relevant follow-up issue.
+OpenStudy exposes an `openstudy` JSON runner for local use:
+
+```bash
+openstudy cards
+openstudy review
+openstudy sources
+openstudy windows
+```
+
+Each domain accepts one JSON request on stdin and returns one JSON response on
+stdout. Validation failures return JSON with `rejected: true`; runtime failures
+exit nonzero and write to stderr. The single-file agent skill is
+[`skills/openstudy/SKILL.md`](skills/openstudy/SKILL.md).
 
 ## Internal Local Storage
 
@@ -78,9 +83,9 @@ agent control plane.
 
 ## Development
 
-Current implementation work is limited to internal storage, scheduling, docs,
-Beads state, and repository infrastructure until later beads promote the
-runner, skill, eval, and release surfaces.
+Current implementation work is limited to internal storage, scheduling, runner,
+skill, docs, Beads state, and repository infrastructure until later beads
+promote eval, release, installation, and automation surfaces.
 
 Use the pinned local toolchain for repository development:
 
@@ -108,8 +113,7 @@ use the commands above for routine verification.
 
 ## Future Releases
 
-No OpenStudy release assets exist yet, and storage/scheduler work must not add
-any.
+No OpenStudy release assets exist yet, and runner/skill work must not add any.
 If a release process is promoted later, tagged `v0.y.z` releases should follow
 the OpenHealth and OpenBrief posture: platform binary archives, skill archives,
 installer assets, source archives, checksums, SBOMs, attestations, release

@@ -3,6 +3,7 @@ package localruntime
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	"github.com/yazanabuashour/openstudy/internal/app"
 	"github.com/yazanabuashour/openstudy/internal/storage/sqlite"
@@ -13,6 +14,7 @@ const EnvDatabasePath = app.EnvDatabasePath
 
 type Config struct {
 	DatabasePath string
+	Now          func() time.Time
 }
 
 type Paths struct {
@@ -50,9 +52,13 @@ func Open(ctx context.Context, config Config) (*Runtime, error) {
 		return nil, err
 	}
 	repo := sqlite.NewRepository(db)
+	opts := []study.Option{}
+	if config.Now != nil {
+		opts = append(opts, study.WithClock(config.Now))
+	}
 	return &Runtime{
 		DB:      db,
-		Service: study.NewService(repo),
+		Service: study.NewService(repo, opts...),
 		Paths:   paths,
 	}, nil
 }
