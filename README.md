@@ -20,6 +20,10 @@ runner contract, scheduler choice, skill contract, install script, release
 workflow, eval harness, or implementation is accepted until the Beads ADR, POC,
 eval, and decision chain explicitly promotes it.
 
+The current planning ADR is
+[`docs/adr/0001-agentops-memorization-direction.md`](docs/adr/0001-agentops-memorization-direction.md).
+It frames the AgentOps memorization direction without promoting implementation.
+
 OpenStudy uses two existing local projects as references:
 
 - OpenHealth is the infrastructure reference: an installed JSON runner, a
