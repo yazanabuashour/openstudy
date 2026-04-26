@@ -1,63 +1,31 @@
-# Agent Instructions
-
-This project uses **bd** (beads) for issue tracking. Run `bd prime` for full workflow context.
+- For all committed docs, reports, Beads notes, and artifact references, use repo-relative paths or neutral repo-relative placeholders. Never use machine-absolute filesystem paths.
+- Do work on the current branch. Do not create or switch to another branch unless explicitly instructed.
+- If repo-pinned developer tools are later declared in `mise.toml`, run commands through `mise exec -- ...` so agents use the same tool versions as local docs and CI.
 
 ## OpenStudy Planning Boundary
 
 OpenStudy is currently planning-only. Do not add a runner, skill, database
-schema, scheduler implementation, automation runtime, or product API until the
-Beads ADR, POC, eval, and decision chain explicitly promotes that work.
+schema, scheduler implementation, automation runtime, product API, install
+script, release workflow, or eval harness until the Beads ADR, POC, eval, and
+decision chain explicitly promotes that work.
 
 Use OpenHealth as the infrastructure reference: installed JSON runner,
 single-file skill, local SQLite storage, immutable release posture,
 repo-relative docs, and eval gates. Use OpenClerk as the decision-process
 reference: ADR, POC, eval, decision, then blocked implementation placeholders.
 
-## Privacy And Artifacts
+## Repository Hygiene
 
-For committed docs, reports, Beads notes, and artifact references, use
-repo-relative paths or neutral placeholders. Never commit machine-absolute
-filesystem paths, credentials, private infrastructure details, personal data,
-raw private logs, or sensitive sample content.
-
-## Quick Reference
-
-```bash
-bd ready              # Find available work
-bd show <id>          # View issue details
-bd update <id> --claim  # Claim work atomically
-bd close <id>         # Complete work
-bd dolt push          # Push beads data to remote
-```
-
-## Non-Interactive Shell Commands
-
-**ALWAYS use non-interactive flags** with file operations to avoid hanging on confirmation prompts.
-
-Shell commands like `cp`, `mv`, and `rm` may be aliased to include `-i` (interactive) mode on some systems, causing the agent to hang indefinitely waiting for y/n input.
-
-**Use these forms instead:**
-```bash
-# Force overwrite without prompting
-cp -f source dest           # NOT: cp source dest
-mv -f source dest           # NOT: mv source dest
-rm -f file                  # NOT: rm file
-
-# For recursive operations
-rm -rf directory            # NOT: rm -r directory
-cp -rf source dest          # NOT: cp -r source dest
-```
-
-**Other commands that may prompt:**
-- `scp` - use `-o BatchMode=yes` for non-interactive
-- `ssh` - use `-o BatchMode=yes` to fail instead of prompting
-- `apt-get` - use `-y` flag
-- `brew` - use `HOMEBREW_NO_AUTO_UPDATE=1` env var
+OpenStudy is intended for open-source distribution. This repository must not
+contain personal source inventories, private study material, private vault
+content, delivery or review logs, workspace backups, run history, local SQLite
+databases, credentials, private infrastructure details, raw private logs, or
+sensitive sample content.
 
 <!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:ca08a54f -->
 ## Beads Issue Tracker
 
-This project uses **bd (beads)** for issue tracking. Run `bd prime` to see full workflow context and commands.
+This project uses **bd (beads)** for maintainer issue tracking. Run `bd prime` to see full workflow context and commands.
 
 ### Quick Reference
 
@@ -70,33 +38,38 @@ bd close <id>         # Complete work
 
 ### Rules
 
-- Use `bd` for ALL task tracking — do NOT use TodoWrite, TaskCreate, or markdown TODO lists
+- If you are acting as a maintainer or local coding agent, use `bd` for task tracking instead of ad hoc markdown TODO lists
 - Run `bd prime` for detailed command reference and session close protocol
 - Use `bd remember` for persistent knowledge — do NOT use MEMORY.md files
 
 ## Session Completion
 
-**When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.
+**When ending a work session**, you MUST complete steps 1-5 below, then stop for manual review before running `git add`, `git commit`, `bd dolt push`, or `git push`. The workflow is paused for manual review at step 5 with uncommitted local changes, and the work session is NOT complete until steps 6-10 are finished after review approval and `git push` succeeds.
 
 **MANDATORY WORKFLOW:**
 
 1. **File issues for remaining work** - Create issues for anything that needs follow-up
 2. **Run quality gates** (if code changed) - Tests, linters, builds
 3. **Update issue status** - Close finished work, update in-progress items
-4. **PUSH TO REMOTE** - This is MANDATORY:
+4. **Prepare manual review** - Run `git status`, summarize changed files and quality gates, confirm no commit or push has been performed, and leave files uncommitted for manual review
+5. **Manual review** - Stop here by default with uncommitted local changes, report that the workflow is paused for manual review, and wait for explicit instruction to complete the remaining steps
+6. **Commit approved changes** - After explicit review approval, stage the intended files and create a local commit
+7. **PUSH TO REMOTE** - This is MANDATORY:
    ```bash
    git pull --rebase
    bd dolt push
    git push
    git status  # MUST show "up to date with origin"
    ```
-5. **Clean up** - Clear stashes, prune remote branches
-6. **Verify** - All changes committed AND pushed
-7. **Hand off** - Provide context for next session
+8. **Clean up** - Clear stashes, prune remote branches
+9. **Verify** - All changes committed AND pushed
+10. **Hand off** - Provide context for next session
 
 **CRITICAL RULES:**
-- Work is NOT complete until `git push` succeeds
-- NEVER stop before pushing - that leaves work stranded locally
-- NEVER say "ready to push when you are" - YOU must push
+- The workflow pauses for manual review after step 5 with uncommitted local changes, and the work session is NOT complete until `git push` succeeds
+- Do NOT run `git add`, `git commit`, `bd dolt push`, or `git push` before manual review unless explicitly instructed
+- Do NOT continue past `Manual review` unless explicitly instructed to complete the remaining workflow steps
+- Once instructed to continue after review, stage, commit, pull/rebase, run `bd dolt push`, and `git push`; do NOT stop again with local-only changes
+- NEVER say "ready to push when you are" after review approval - YOU must push
 - If push fails, resolve and retry until it succeeds
 <!-- END BEADS INTEGRATION -->
