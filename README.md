@@ -26,6 +26,9 @@ It frames the AgentOps memorization direction without promoting implementation.
 The current planning POC is
 [`docs/poc/0001-memorization-architecture-options.md`](docs/poc/0001-memorization-architecture-options.md).
 It compares architecture options without shipping product code.
+The current eval plan is
+[`docs/eval/0001-agentops-memorization-pressure.md`](docs/eval/0001-agentops-memorization-pressure.md).
+It defines pressure scenarios without adding an eval harness.
 
 OpenStudy uses two existing local projects as references:
 
