@@ -1,10 +1,11 @@
 # OpenStudy
 
 OpenStudy is being planned as a local-first AgentOps memorization runtime for
-agents. The intended product owns memorization practice state: cards, review
-scheduling, grading history, and automation state. Cards may later link back to
-OpenClerk or vault source notes for provenance, but OpenStudy owns mutable
-review practice data.
+agents. The intended product helps agents practice and retain operational
+knowledge through memorization workflows, and it owns memorization practice
+state: cards, review scheduling, grading history, and automation state. Cards
+may later link back to OpenClerk or vault source notes for provenance, but
+OpenStudy owns mutable review practice data.
 
 OpenStudy is designed for open-source distribution. This repository must not
 contain personal source inventories, private study material, private vault
@@ -16,8 +17,8 @@ sensitive sample content.
 
 This repository is in a planning-only stage. No product API, database schema,
 runner contract, scheduler choice, skill contract, install script, release
-workflow, eval harness, or implementation is accepted until the Beads decision
-process explicitly promotes it.
+workflow, eval harness, or implementation is accepted until the Beads ADR, POC,
+eval, and decision chain explicitly promotes it.
 
 OpenStudy uses two existing local projects as references:
 
@@ -25,7 +26,8 @@ OpenStudy uses two existing local projects as references:
   single-file skill, local SQLite storage, immutable release assets,
   repo-relative documentation, and production eval gates.
 - OpenClerk is the decision-process reference: ADR, POC, eval, decision, then
-  blocked implementation only after the decision promotes a surface.
+  blocked implementation placeholders until the accepted decision promotes a
+  surface.
 - OpenBrief is the documentation and repository-hygiene reference for
   open-source distribution, local runtime state boundaries, and keeping private
   user configuration out of the repository.
@@ -78,11 +80,11 @@ use the commands above for routine verification.
 
 ## Future Releases
 
-No OpenStudy release assets exist yet. If a release process is promoted later,
-tagged `v0.y.z` releases should follow the OpenHealth and OpenBrief posture:
-platform binary archives, skill archives, installer assets, source archives,
-checksums, SBOMs, attestations, release verification docs, and immutable
-published assets.
+No OpenStudy release assets exist yet, and this planning task must not add any.
+If a release process is promoted later, tagged `v0.y.z` releases should follow
+the OpenHealth and OpenBrief posture: platform binary archives, skill archives,
+installer assets, source archives, checksums, SBOMs, attestations, release
+verification docs, and immutable published assets.
 
 ## Contributing
 

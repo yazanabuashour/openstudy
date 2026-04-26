@@ -2,6 +2,15 @@
 - Do work on the current branch. Do not create or switch to another branch unless explicitly instructed.
 - If repo-pinned developer tools are later declared in `mise.toml`, run commands through `mise exec -- ...` so agents use the same tool versions as local docs and CI.
 
+## OpenStudy Product Goal
+
+OpenStudy is being planned as a local-first AgentOps memorization runtime for
+agents. The intended product helps agents practice and retain operational
+knowledge, and it will own memorization practice state such as cards, review
+scheduling, grading history, and automation state. Cards may later link back to
+OpenClerk or vault source notes for provenance, but OpenStudy owns mutable
+review practice data.
+
 ## OpenStudy Planning Boundary
 
 OpenStudy is currently planning-only. Do not add a runner, skill, database
@@ -13,6 +22,8 @@ Use OpenHealth as the infrastructure reference: installed JSON runner,
 single-file skill, local SQLite storage, immutable release posture,
 repo-relative docs, and eval gates. Use OpenClerk as the decision-process
 reference: ADR, POC, eval, decision, then blocked implementation placeholders.
+Any future release work must follow the OpenHealth immutable-release posture,
+but no release assets, install path, or release workflow exist yet.
 
 ## Repository Hygiene
 
