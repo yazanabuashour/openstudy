@@ -23,6 +23,9 @@ eval, and decision chain explicitly promotes it.
 The current planning ADR is
 [`docs/adr/0001-agentops-memorization-direction.md`](docs/adr/0001-agentops-memorization-direction.md).
 It frames the AgentOps memorization direction without promoting implementation.
+The current planning POC is
+[`docs/poc/0001-memorization-architecture-options.md`](docs/poc/0001-memorization-architecture-options.md).
+It compares architecture options without shipping product code.
 
 OpenStudy uses two existing local projects as references:
 
