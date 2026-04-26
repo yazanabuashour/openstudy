@@ -29,6 +29,12 @@ The future promoted surface should prove that OpenStudy can:
 - reject direct SQLite, source-built, HTTP, MCP, and unsupported bypass paths.
 - redact private data from docs, outputs, fixtures, and examples.
 
+## Eval Model
+
+All future OpenStudy eval scenarios must run with `gpt-5.4-mini`. This is a
+planning and decision-gate requirement only; it does not define an executable
+eval harness, runner command, API detail, or promoted eval workflow.
+
 ## Pressure Scenarios
 
 ### Rough-Term Card Creation
@@ -206,6 +212,8 @@ Failure examples:
 - scheduler behavior can be pressure-tested with deterministic examples.
 - free-text grading covers correct, partial, incorrect, hallucinated, and
   overgenerous-grading failure cases.
+- no eval harness or promoted eval workflow is accepted unless all OpenStudy
+  eval scenarios are pinned to `gpt-5.4-mini`.
 - the promoted surface keeps exact runner, skill, schema, storage, scheduler,
   automation, install, release, and eval-harness details explicit.
 - any release path follows the OpenHealth immutable-release posture and eval
