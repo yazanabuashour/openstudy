@@ -15,10 +15,12 @@ sensitive sample content.
 
 ## Planning Status
 
-This repository is in a planning-only stage. No product API, database schema,
-runner contract, scheduler choice, skill contract, install script, release
-workflow, eval harness, or implementation is accepted until the Beads ADR, POC,
-eval, and decision chain explicitly promotes it.
+This repository has completed the first planning decision chain. Decision
+[`docs/decision/0001-openstudy-memorization-promotion.md`](docs/decision/0001-openstudy-memorization-promotion.md)
+accepts a narrow future implementation path, but product behavior is still
+gated behind ordered Beads implementation work. No product API, database schema,
+runner behavior, scheduler implementation, skill contract, install script,
+release workflow, or executable eval harness is present in this repository yet.
 
 The current planning ADR is
 [`docs/adr/0001-agentops-memorization-direction.md`](docs/adr/0001-agentops-memorization-direction.md).
@@ -29,6 +31,10 @@ It compares architecture options without shipping product code.
 The current eval plan is
 [`docs/eval/0001-agentops-memorization-pressure.md`](docs/eval/0001-agentops-memorization-pressure.md).
 It defines pressure scenarios without adding an eval harness.
+The accepted promotion decision is
+[`docs/decision/0001-openstudy-memorization-promotion.md`](docs/decision/0001-openstudy-memorization-promotion.md).
+It promotes an OpenHealth-style path while keeping implementation ordered
+through the Beads placeholder chain.
 
 OpenStudy uses two existing local projects as references:
 
@@ -57,7 +63,7 @@ OpenStudy does not currently ship an `openstudy` runner, skill, install path, or
 public command surface. Candidate domains from the planning work may include
 deck/card management, review sessions, answer recording, grading evidence, and
 review-window automation, but those names are placeholders until promoted by a
-decision bead.
+decision bead and implemented by the relevant follow-up issue.
 
 ## Deferred Local Storage
 
@@ -70,18 +76,26 @@ deferred until the storage and runner decisions are accepted.
 ## Development
 
 There is no product implementation yet. Current development work is limited to
-docs and Beads planning state.
+docs, Beads planning state, and the initial repository infrastructure scaffold.
+
+Use the pinned local toolchain for repository development:
+
+```bash
+mise trust
+mise install
+mise exec -- go test ./...
+```
 
 Useful verification commands for this stage:
 
 ```bash
 git diff --check
-bd status --json
-bd list --json
-bd ready --json
-bd dep cycles --json
-bd where
-bd context --json
+mise exec -- bd status --json
+mise exec -- bd list --json
+mise exec -- bd ready --json
+mise exec -- bd dep cycles --json
+mise exec -- bd where
+mise exec -- bd context --json
 ```
 
 Beads is initialized with the `os` prefix in embedded mode. In `bd 1.0.3`,

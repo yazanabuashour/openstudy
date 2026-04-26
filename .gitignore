@@ -1,5 +1,22 @@
-
 # Beads / Dolt files (added by bd init)
 .dolt/
-*.db
 .beads-credential-key
+
+# Local runtime and database files
+*.db
+*.db-*
+*.sqlite
+*.sqlite-*
+*.sqlite3
+*.sqlite3-*
+
+# Build, coverage, and test artifacts
+bin/
+dist/
+coverage.out
+*.test
+
+# Local environment and editor state
+.env
+.env.*
+.DS_Store

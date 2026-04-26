@@ -1,0 +1,4 @@
+[tools]
+"aqua:dolthub/dolt" = "1.86.5"
+"aqua:gastownhall/beads" = "1.0.3"
+go = "1.26.2"
