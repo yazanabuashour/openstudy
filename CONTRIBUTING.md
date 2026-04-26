@@ -4,14 +4,13 @@ Outside contributors do not need Beads to contribute to this repository.
 
 ## Project Shape
 
-OpenStudy is in its initial promoted infrastructure stage. The repository does
-not yet expose an `openstudy` runner, a skill, a database schema, a scheduler,
-an install script, a release workflow, or an executable eval harness.
+OpenStudy has internal storage and scheduler code for the promoted `os-ful`
+bead. The repository does not yet expose an `openstudy` runner, a skill, an
+install script, a release workflow, or an executable eval harness.
 
 Future product surfaces must follow the accepted Beads decision chain before
-they are added. In particular, storage and scheduling work belongs to the next
-implementation bead, runner and skill behavior belongs to the runner/skill
-bead, and eval or release gates belong to the eval/release bead.
+they are added. Runner and skill behavior belongs to the runner/skill bead, and
+eval or release gates belong to the eval/release bead.
 
 ## Local Setup
 
@@ -48,7 +47,7 @@ this file with the new checks in the same change.
 
 ## Support and Compatibility
 
-Before `1.0`, compatibility is best effort and may change between planning and
-implementation milestones. OpenStudy does not currently promise a shipped
-runner, hosted service, remote HTTP API, MCP server, skill package, install
-path, release artifact, or database schema.
+Before `1.0`, compatibility is best effort and may change between implementation
+milestones. OpenStudy does not currently promise a shipped runner, hosted
+service, remote HTTP API, MCP server, skill package, install path, or release
+artifact.

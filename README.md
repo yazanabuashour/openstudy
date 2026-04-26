@@ -1,7 +1,7 @@
 # OpenStudy
 
-OpenStudy is being planned as a local-first AgentOps memorization runtime for
-agents. The intended product helps agents practice and retain operational
+OpenStudy is a local-first AgentOps memorization runtime for agents. The
+intended product helps agents practice and retain operational
 knowledge through memorization workflows, and it owns memorization practice
 state: cards, review scheduling, grading history, and automation state. Cards
 may later link back to OpenClerk or vault source notes for provenance, but
@@ -17,10 +17,11 @@ sensitive sample content.
 
 This repository has completed the first planning decision chain. Decision
 [`docs/decision/0001-openstudy-memorization-promotion.md`](docs/decision/0001-openstudy-memorization-promotion.md)
-accepts a narrow future implementation path, but product behavior is still
-gated behind ordered Beads implementation work. No product API, database schema,
-runner behavior, scheduler implementation, skill contract, install script,
-release workflow, or executable eval harness is present in this repository yet.
+accepted a narrow implementation path. The `os-ful` bead adds the first
+internal storage and scheduler layer, but public product behavior remains
+gated behind ordered Beads implementation work. No product API, runner
+behavior, skill contract, install script, release workflow, or executable eval
+harness is present in this repository yet.
 
 The current planning ADR is
 [`docs/adr/0001-agentops-memorization-direction.md`](docs/adr/0001-agentops-memorization-direction.md).
@@ -52,10 +53,10 @@ OpenStudy uses two existing local projects as references:
 
 The expected agent-facing path is the AgentOps pattern: a single-file skill
 gives the agent task policy, and a local JSON runner performs stateful
-memorization operations through structured JSON. That shape is not implemented
-yet. The exact runner domains, request and response schema, validation model,
-storage behavior, scheduler, and automation surface must be decided through the
-ADR, POC, eval, and decision beads before any code is added.
+memorization operations through structured JSON. That public shape is not
+implemented yet. Internal storage and scheduler behavior exists for future
+runner work; the exact runner request and response schema, command flags,
+validation model, and automation surface remain deferred to later beads.
 
 ## Deferred Runner Interface
 
@@ -65,18 +66,21 @@ deck/card management, review sessions, answer recording, grading evidence, and
 review-window automation, but those names are placeholders until promoted by a
 decision bead and implemented by the relevant follow-up issue.
 
-## Deferred Local Storage
+## Internal Local Storage
 
-OpenStudy is expected to be local-first. If promoted, mutable memorization state
-should live in a host-local database outside the repository, following the
-OpenHealth and OpenBrief pattern. The database path, environment variables,
-schema, migrations, backup expectations, and direct-access restrictions are
-deferred until the storage and runner decisions are accepted.
+OpenStudy is local-first. Mutable memorization state lives in a host-local
+SQLite database outside the repository, following the OpenHealth and OpenBrief
+pattern. Internal runtime path resolution uses
+`${XDG_DATA_HOME:-~/.local/share}/openstudy/openstudy.sqlite`, with
+`OPENSTUDY_DATABASE_PATH` and explicit config overrides for tests and future
+runner wiring. The database remains an implementation detail, not a routine
+agent control plane.
 
 ## Development
 
-There is no product implementation yet. Current development work is limited to
-docs, Beads planning state, and the initial repository infrastructure scaffold.
+Current implementation work is limited to internal storage, scheduling, docs,
+Beads state, and repository infrastructure until later beads promote the
+runner, skill, eval, and release surfaces.
 
 Use the pinned local toolchain for repository development:
 
@@ -104,7 +108,8 @@ use the commands above for routine verification.
 
 ## Future Releases
 
-No OpenStudy release assets exist yet, and this planning task must not add any.
+No OpenStudy release assets exist yet, and storage/scheduler work must not add
+any.
 If a release process is promoted later, tagged `v0.y.z` releases should follow
 the OpenHealth and OpenBrief posture: platform binary archives, skill archives,
 installer assets, source archives, checksums, SBOMs, attestations, release

@@ -4,17 +4,17 @@
 
 ## OpenStudy Product Goal
 
-OpenStudy is being planned as a local-first AgentOps memorization runtime for
-agents. The intended product helps agents practice and retain operational
-knowledge, and it will own memorization practice state such as cards, review
+OpenStudy is a local-first AgentOps memorization runtime for agents. The
+intended product helps agents practice and retain operational knowledge, and it
+owns memorization practice state such as cards, review
 scheduling, grading history, and automation state. Cards may later link back to
 OpenClerk or vault source notes for provenance, but OpenStudy owns mutable
 review practice data.
 
 ## OpenStudy Planning Boundary
 
-OpenStudy is currently planning-only. Do not add a runner, skill, database
-schema, scheduler implementation, automation runtime, product API, install
+OpenStudy currently has promoted internal storage and scheduler code from
+`os-ful`. Do not add a runner, skill, automation runtime, product API, install
 script, release workflow, or eval harness until the Beads ADR, POC, eval, and
 decision chain explicitly promotes that work.
 
