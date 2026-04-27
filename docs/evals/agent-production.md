@@ -58,5 +58,6 @@ Before committing eval outputs, run:
 mise exec -- ./scripts/validate-committed-artifacts.sh
 ```
 
-Do not commit raw `events.jsonl`, local database files, raw logs, generated run
-roots, or reports with machine-local paths.
+Do not commit raw `<run-root>/events.jsonl`, local database files, eval-local
+log files under `<run-root>/`, generated run roots, or reports with
+machine-local paths.
