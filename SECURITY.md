@@ -4,8 +4,8 @@
 
 This project is pre-`1.0` and currently contains planning documents, internal
 storage/scheduler code, and the first OpenStudy JSON runner plus single-file
-skill. There is no install script, release workflow, release artifact, or
-hosted service yet.
+skill. It also contains local production eval and release verification tooling.
+There is no published release artifact or hosted service yet.
 
 The supported code line is the current default branch until release artifacts
 exist.
@@ -63,9 +63,9 @@ maintainers:
 
 ## Emergency Releases and Hotfixes
 
-Release assets do not exist yet. If a vulnerability affects a future supported
-release, maintainers may cut an out-of-band patch tag and GitHub Release
-outside the normal release cadence.
+If a vulnerability affects a future supported release, maintainers may cut an
+out-of-band patch tag and hosted release outside the normal release cadence.
 
 Any future emergency release must follow the OpenHealth-style immutable release
-posture promoted by the OpenStudy decision chain.
+posture: pass production eval gates, verify checksums and attestations, and
+ship a new patch release instead of replacing published assets.

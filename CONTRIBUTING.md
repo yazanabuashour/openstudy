@@ -6,11 +6,12 @@ Outside contributors do not need Beads to contribute to this repository.
 
 OpenStudy has internal storage and scheduler code from `os-ful`, plus the
 promoted `openstudy` JSON runner and single-file skill from `os-5v4`. The
-repository does not yet expose an install script, a release workflow, or an
-executable eval harness.
+repository now includes production eval and local release verification tooling
+from `os-7nh`, but it does not publish releases or expose automation runtime
+surfaces.
 
 Future product surfaces must follow the accepted Beads decision chain before
-they are added. Eval or release gates belong to the eval/release bead.
+they are added.
 
 ## Local Setup
 
@@ -30,10 +31,19 @@ Current repository checks are:
 ```bash
 git diff --check
 mise exec -- go test ./...
+mise exec -- ./scripts/validate-agent-skill.sh
+mise exec -- ./scripts/validate-committed-artifacts.sh
+mise exec -- ./scripts/validate-release-docs.sh
 ```
 
-If future code, runner, skill, eval, or release surfaces are promoted, update
-this file with the new checks in the same change.
+Production eval runs use:
+
+```bash
+mise exec -- go run ./scripts/agent-eval/os7nh run
+```
+
+Live eval execution requires local Codex CLI access and writes raw run
+artifacts outside committed docs.
 
 ## Pull Request Expectations
 
@@ -49,4 +59,4 @@ this file with the new checks in the same change.
 
 Before `1.0`, compatibility is best effort and may change between implementation
 milestones. OpenStudy does not currently promise a hosted service, remote HTTP
-API, MCP server, install path, or release artifact.
+API, MCP server, published release, or automation runtime.

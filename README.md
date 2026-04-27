@@ -19,9 +19,9 @@ This repository has completed the first planning decision chain. Decision
 [`docs/decision/0001-openstudy-memorization-promotion.md`](docs/decision/0001-openstudy-memorization-promotion.md)
 accepted a narrow implementation path. The `os-ful` bead adds the first
 internal storage and scheduler layer, and `os-5v4` adds the first JSON runner
-and single-file skill. Install scripts, release workflow, automation runtime,
-and executable eval harnesses remain gated behind ordered Beads implementation
-work.
+and single-file skill. The `os-7nh` bead adds the first production eval and
+local release verification gates. Automation runtime and remote release
+publication remain gated behind ordered Beads implementation work.
 
 The current planning ADR is
 [`docs/adr/0001-agentops-memorization-direction.md`](docs/adr/0001-agentops-memorization-direction.md).
@@ -31,7 +31,8 @@ The current planning POC is
 It compares architecture options without shipping product code.
 The current eval plan is
 [`docs/eval/0001-agentops-memorization-pressure.md`](docs/eval/0001-agentops-memorization-pressure.md).
-It defines pressure scenarios without adding an eval harness.
+It defines the pressure scenarios implemented by the production eval harness in
+[`docs/evals/agent-production.md`](docs/evals/agent-production.md).
 The accepted promotion decision is
 [`docs/decision/0001-openstudy-memorization-promotion.md`](docs/decision/0001-openstudy-memorization-promotion.md).
 It promotes an OpenHealth-style path while keeping implementation ordered
@@ -84,8 +85,9 @@ agent control plane.
 ## Development
 
 Current implementation work is limited to internal storage, scheduling, runner,
-skill, docs, Beads state, and repository infrastructure until later beads
-promote eval, release, installation, and automation surfaces.
+skill, eval gates, local release verification, docs, Beads state, and
+repository infrastructure until later beads promote automation or publication
+surfaces.
 
 Use the pinned local toolchain for repository development:
 
@@ -99,6 +101,9 @@ Useful verification commands for this stage:
 
 ```bash
 git diff --check
+mise exec -- ./scripts/validate-agent-skill.sh
+mise exec -- ./scripts/validate-committed-artifacts.sh
+mise exec -- ./scripts/validate-release-docs.sh
 mise exec -- bd status --json
 mise exec -- bd list --json
 mise exec -- bd ready --json
@@ -113,11 +118,23 @@ use the commands above for routine verification.
 
 ## Future Releases
 
-No OpenStudy release assets exist yet, and runner/skill work must not add any.
-If a release process is promoted later, tagged `v0.y.z` releases should follow
-the OpenHealth and OpenBrief posture: platform binary archives, skill archives,
-installer assets, source archives, checksums, SBOMs, attestations, release
-verification docs, and immutable published assets.
+OpenStudy has local release bundle and verification tooling, but no tagged
+published release yet. Build candidate artifacts with:
+
+```bash
+mise exec -- ./scripts/build-release-bundle.sh <version> <out-dir>
+```
+
+Before publication, the production eval gate must pass:
+
+```bash
+mise exec -- go run ./scripts/agent-eval/os7nh run
+```
+
+Tagged `v0.y.z` releases should follow the OpenHealth and OpenBrief posture:
+platform binary archives, skill archives, installer assets, source archives,
+checksums, SBOMs, attestations, release verification docs, and immutable
+published assets.
 
 ## Contributing
 

@@ -1,4 +1,5 @@
 // Package repo anchors repository-level infrastructure checks for OpenStudy.
 //
-// It intentionally contains no automation, release, or eval behavior.
+// Automation runtime remains out of scope. Eval and local release gate tooling
+// lives under scripts and internal tools.
 package repo

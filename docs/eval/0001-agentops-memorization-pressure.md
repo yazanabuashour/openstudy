@@ -10,12 +10,10 @@ memorization direction. It builds on
 and
 [`docs/poc/0001-memorization-architecture-options.md`](../poc/0001-memorization-architecture-options.md).
 
-This document is not an executable eval harness and does not approve
-implementation. It does not define a public API, runner command, skill
-contract, database schema, scheduler implementation, automation runtime,
-install path, release workflow, or product code. Scenario names and candidate
-fields below are planning labels only until the decision bead promotes a
-surface.
+This document was the planning eval and does not itself define executable
+harness behavior. The promoted production harness that implements these
+scenarios now lives in
+[`docs/evals/agent-production.md`](../evals/agent-production.md).
 
 ## Eval Goals
 
@@ -219,10 +217,12 @@ Failure examples:
 - any release path follows the OpenHealth immutable-release posture and eval
   gates before publication.
 
-## Non-Goals
+## Historical Non-Goals
 
-- Build an executable eval harness.
-- Add runner, skill, schema, scheduler, API, install, release, or automation
+At the time this planning eval was accepted, this document did not itself:
+
+- build an executable eval harness.
+- add runner, skill, schema, scheduler, API, install, release, or automation
   implementation.
 - Add private material, local databases, logs, credentials, or fixture data.
 - Authorize implementation before `os-pke`.
