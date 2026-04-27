@@ -38,6 +38,7 @@ tar -C "${out_dir}/skill" -czf "${out_dir}/${skill_archive}" openstudy
 rm -rf "${out_dir:?}/skill"
 
 git archive \
+  --worktree-attributes \
   --format=tar.gz \
   --prefix="openstudy_${asset_version}/" \
   HEAD \

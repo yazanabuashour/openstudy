@@ -13,10 +13,10 @@ OpenStudy has completed the current planning chain for AgentOps memorization:
 - [`docs/eval/0001-agentops-memorization-pressure.md`](../eval/0001-agentops-memorization-pressure.md)
 
 The ADR frames OpenStudy as the future owner of mutable memorization practice
-state. The POC recommends an OpenHealth-style local JSON runner plus
-single-file skill. The eval plan defines pressure gates for card creation,
-missing-field rejection, grading quality, due reviews, scheduler transitions,
-provenance boundaries, bypass rejection, and private-data redaction.
+state. The POC recommends a local JSON runner plus single-file skill. The eval
+plan defines pressure gates for card creation, missing-field rejection, grading
+quality, due reviews, scheduler transitions, provenance boundaries, bypass
+rejection, and private-data redaction.
 
 This decision promotes a minimal implementation path for future beads only. It
 does not add a runner, skill, database schema, scheduler implementation,
@@ -25,7 +25,7 @@ eval harness.
 
 ## Decision
 
-Promote an OpenHealth-style OpenStudy runtime path behind the existing ordered
+Promote a local-first OpenStudy runtime path behind the existing ordered
 implementation placeholders. OpenStudy should proceed through the blocked Beads
 chain rather than implementing product behavior directly from this decision:
 
@@ -93,10 +93,9 @@ Every future OpenStudy eval scenario must run with `gpt-5.4-mini`. No eval
 harness, promoted eval workflow, or release gate is acceptable unless that model
 pin is explicit.
 
-Any release path must follow the OpenHealth immutable-release posture: shipped
-runner and skill artifacts, release verification, checksums or attestations as
-appropriate for the artifact set, and passing production eval gates before
-publication.
+Any release path must follow the immutable-release posture: shipped runner and
+skill artifacts, release verification, checksums or attestations as appropriate
+for the artifact set, and passing production eval gates before publication.
 
 ## Consequences
 

@@ -35,13 +35,53 @@ func TestValidatePublicArtifactTextRejectsAbsolutePathsAndUnplacedRawLogs(t *tes
 	if err := validatePublicArtifactText("docs/evals/results/report.md", "Raw log: <run-root>/production/events.jsonl"); err != nil {
 		t.Fatalf("placeholder raw log: %v", err)
 	}
+	if err := validatePublicArtifactText("README.md", "Use Open"+"Health as a reference."); err == nil || !strings.Contains(err.Error(), "forbidden local reference") {
+		t.Fatalf("forbidden reference error = %v", err)
+	}
+}
+
+func TestValidateExportIgnoreRules(t *testing.T) {
+	root := t.TempDir()
+	writeFile(t, root, ".gitattributes", strings.Join([]string{
+		".beads/ export-ignore",
+		".claude/ export-ignore",
+		".dolt/ export-ignore",
+		".agents/ export-ignore",
+		"dist/ export-ignore",
+		"bin/ export-ignore",
+		"*.db export-ignore",
+		"*.sqlite export-ignore",
+		"*.sqlite3 export-ignore",
+		"*.jsonl export-ignore",
+		".env export-ignore",
+	}, "\n"))
+	if err := validateExportIgnoreRules(root); err != nil {
+		t.Fatalf("validate export ignore rules: %v", err)
+	}
+	writeFile(t, root, ".gitattributes", ".beads/ export-ignore\n")
+	if err := validateExportIgnoreRules(root); err == nil || !strings.Contains(err.Error(), ".claude/") {
+		t.Fatalf("missing export-ignore error = %v", err)
+	}
 }
 
 func TestValidateCommittedArtifactsAcceptsFixtureRepo(t *testing.T) {
 	root := t.TempDir()
 	writeFile(t, root, "README.md", "# Fixture\n\nRaw log: <run-root>/production/example/events.jsonl\n")
+	writeFile(t, root, ".gitattributes", strings.Join([]string{
+		".beads/ export-ignore",
+		".claude/ export-ignore",
+		".dolt/ export-ignore",
+		".agents/ export-ignore",
+		"dist/ export-ignore",
+		"bin/ export-ignore",
+		"*.db export-ignore",
+		"*.sqlite export-ignore",
+		"*.sqlite3 export-ignore",
+		"*.jsonl export-ignore",
+		".env export-ignore",
+	}, "\n"))
 	runGit(t, root, "init")
-	runGit(t, root, "add", "README.md")
+	runGit(t, root, "add", "README.md", ".gitattributes")
 	if err := validateCommittedArtifacts(root); err != nil {
 		t.Fatalf("validate committed artifacts: %v", err)
 	}

@@ -1,7 +1,8 @@
 # Release Verification
 
-OpenStudy release candidates are local bundles until a maintainer publishes a
-tagged release. The local bundle command is:
+OpenStudy releases are tagged GitHub Releases with downloadable runner, skill,
+source, checksum, SBOM, and installer assets. Maintainers can build the same
+candidate bundle locally with:
 
 ```bash
 mise exec -- ./scripts/build-release-bundle.sh <version> <out-dir>
@@ -18,8 +19,8 @@ The generated artifact set is:
 
 Platform archives contain the production `openstudy` binary. The skill archive
 contains `skills/openstudy/SKILL.md`. The source archive is the canonical Go
-module source artifact. Checksums cover every generated archive, the SBOM, and
-the install script.
+module source artifact with maintainer-only local metadata excluded. Checksums
+cover every generated archive, the SBOM, and the install script.
 
 Before publication, run the release-blocking production eval:
 
@@ -30,7 +31,8 @@ mise exec -- go run ./scripts/agent-eval/os7nh run
 The eval model pin is `gpt-5.4-mini`. A release candidate must not publish if
 the production gate fails, if the skill bypass policy fails, or if committed
 reports include raw logs, direct SQLite workflows, HTTP, MCP, source-built
-runner paths, unsupported transports, or machine-local paths.
+runner paths, unsupported transports, machine-local paths, or maintainer-only
+reference details.
 
 ## Verify A Bundle
 
@@ -43,8 +45,16 @@ tar -tzf openstudy_<version>_source.tar.gz
 ```
 
 When artifacts are attached to a hosted release, verify attestations for the
-platform archive, skill archive, source archive, SBOM, and installer with the
-repository's release attestation tooling before publishing.
+platform archive, skill archive, source archive, SBOM, and installer before
+publishing:
+
+```bash
+gh attestation verify openstudy_<version>_<os>_<arch>.tar.gz --repo yazanabuashour/openstudy
+gh attestation verify openstudy_<version>_skill.tar.gz --repo yazanabuashour/openstudy
+gh attestation verify openstudy_<version>_source.tar.gz --repo yazanabuashour/openstudy
+gh attestation verify openstudy_<version>_sbom.json --repo yazanabuashour/openstudy
+gh attestation verify install.sh --repo yazanabuashour/openstudy
+```
 
 ## Smoke-Test An Install
 
@@ -63,6 +73,18 @@ openstudy --help
 ```
 
 The valid runner domains are `cards`, `review`, `sources`, and `windows`.
+
+## Verify Release Notes
+
+Each tag must have matching release notes and changelog coverage:
+
+```bash
+mise exec -- ./scripts/validate-release-docs.sh v0.1.0
+```
+
+Release notes must link the reduced production eval report, summarize artifact
+verification, and avoid raw logs, local databases, machine-local paths, and
+private material.
 
 ## Immutability
 

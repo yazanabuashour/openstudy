@@ -55,7 +55,7 @@ func TestRepositoryCardsSourcesDueAndArchive(t *testing.T) {
 	label := "planning ADR"
 	source, err := repo.AddSource(ctx, study.AddSourceParams{
 		CardID:       cardA.ID,
-		SourceSystem: "openclerk",
+		SourceSystem: "external-notes",
 		SourceKey:    "note-123",
 		Label:        &label,
 		Now:          now,

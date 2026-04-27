@@ -17,12 +17,12 @@ surfaces deferred to the POC, eval, and decision beads.
 ## Decision
 
 OpenStudy should be treated as the future owner of mutable memorization
-practice state. OpenClerk and vault references should be provenance inputs, not
-the place where review state is stored or mutated.
+practice state. External source references should be provenance inputs, not the
+place where review state is stored or mutated.
 
-If implementation is later promoted, the runtime should follow the OpenHealth
-infrastructure posture: an installed local JSON runner, a single-file agent
-skill, host-local storage outside the repository, repo-relative documentation,
+If implementation is later promoted, the runtime should follow a local-first
+release posture: an installed local JSON runner, a single-file agent skill,
+host-local storage outside the repository, repo-relative documentation,
 immutable release assets, and eval gates before release. This ADR does not
 choose the final runner contract, skill contract, storage schema, scheduler, or
 public command surface.
@@ -33,21 +33,20 @@ public command surface.
 
 OpenStudy-owned state keeps memorization behavior independent from source-note
 systems. Cards, due dates, grading history, and automation state can evolve as
-practice data without rewriting OpenClerk records or vault notes.
+practice data without rewriting external source notes.
 
-Using OpenClerk or vault content as the mutable review store would blur
-provenance with practice state. It also risks leaking private study material,
-delivery history, or source inventories into an open-source repository.
+Using external source content as the mutable review store would blur provenance
+with practice state. It also risks leaking private study material, delivery
+history, or source inventories into an open-source repository.
 
-Direction: OpenStudy owns mutable practice state; OpenClerk and vault paths are
+Direction: OpenStudy owns mutable practice state; external source pointers are
 candidate provenance references only.
 
 ### Runner and Skill Shape
 
-An OpenHealth-style JSON runner plus single-file skill gives agents a narrow
-policy surface and keeps stateful operations behind structured local commands.
-It also supports eval gates and release verification before any behavior is
-published.
+A local JSON runner plus single-file skill gives agents a narrow policy surface
+and keeps stateful operations behind structured local commands. It also
+supports eval gates and release verification before any behavior is published.
 
 Direct library access, product APIs, or ad hoc scripts would make bypasses
 easier, spread policy across implementation details, and promote surfaces before
@@ -106,7 +105,8 @@ constraints for the POC and eval plan, not optional polish.
 ## Follow-Up
 
 The next POC should compare the candidate runner domains, grading workflow,
-source-reference model, scheduler options, automation windows, and OpenHealth
-infrastructure fit without shipping product code. The later eval should pressure
-test missing-field rejection, free-text grading, due review sessions, scheduler
-transitions, provenance, direct-bypass rejection, and private-data redaction.
+source-reference model, scheduler options, automation windows, and local-first
+infrastructure fit without shipping product code. The later eval should
+pressure test missing-field rejection, free-text grading, due review sessions,
+scheduler transitions, provenance, direct-bypass rejection, and private-data
+redaction.

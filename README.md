@@ -4,8 +4,8 @@ OpenStudy is a local-first AgentOps memorization runtime for agents. The
 intended product helps agents practice and retain operational
 knowledge through memorization workflows, and it owns memorization practice
 state: cards, review scheduling, grading history, and automation state. Cards
-may later link back to OpenClerk or vault source notes for provenance, but
-OpenStudy owns mutable review practice data.
+may later link back to external source notes for provenance, but OpenStudy owns
+mutable review practice data.
 
 OpenStudy is designed for open-source distribution. This repository must not
 contain personal source inventories, private study material, private vault
@@ -35,20 +35,8 @@ It defines the pressure scenarios implemented by the production eval harness in
 [`docs/evals/agent-production.md`](docs/evals/agent-production.md).
 The accepted promotion decision is
 [`docs/decision/0001-openstudy-memorization-promotion.md`](docs/decision/0001-openstudy-memorization-promotion.md).
-It promotes an OpenHealth-style path while keeping implementation ordered
-through the Beads placeholder chain.
-
-OpenStudy uses two existing local projects as references:
-
-- OpenHealth is the infrastructure reference: an installed JSON runner, a
-  single-file skill, local SQLite storage, immutable release assets,
-  repo-relative documentation, and production eval gates.
-- OpenClerk is the decision-process reference: ADR, POC, eval, decision, then
-  blocked implementation placeholders until the accepted decision promotes a
-  surface.
-- OpenBrief is the documentation and repository-hygiene reference for
-  open-source distribution, local runtime state boundaries, and keeping private
-  user configuration out of the repository.
+It promotes a local-first runner and skill path while keeping implementation
+ordered through the Beads placeholder chain.
 
 ## AgentOps Direction
 
@@ -75,8 +63,7 @@ exit nonzero and write to stderr. The single-file agent skill is
 ## Internal Local Storage
 
 OpenStudy is local-first. Mutable memorization state lives in a host-local
-SQLite database outside the repository, following the OpenHealth and OpenBrief
-pattern. Internal runtime path resolution uses
+SQLite database outside the repository. Internal runtime path resolution uses
 `${XDG_DATA_HOME:-~/.local/share}/openstudy/openstudy.sqlite`, with
 `OPENSTUDY_DATABASE_PATH` and explicit config overrides for tests and future
 runner wiring. The database remains an implementation detail, not a routine
@@ -116,10 +103,10 @@ Beads is initialized with the `os` prefix in embedded mode. In `bd 1.0.3`,
 `bd doctor --json` reports that doctor is not yet supported for embedded mode;
 use the commands above for routine verification.
 
-## Future Releases
+## Release 0.1.0
 
-OpenStudy has local release bundle and verification tooling, but no tagged
-published release yet. Build candidate artifacts with:
+OpenStudy `v0.1.0` is the first planned public release. Build candidate
+artifacts with:
 
 ```bash
 mise exec -- ./scripts/build-release-bundle.sh <version> <out-dir>
@@ -131,10 +118,9 @@ Before publication, the production eval gate must pass:
 mise exec -- go run ./scripts/agent-eval/os7nh run
 ```
 
-Tagged `v0.y.z` releases should follow the OpenHealth and OpenBrief posture:
-platform binary archives, skill archives, installer assets, source archives,
-checksums, SBOMs, attestations, release verification docs, and immutable
-published assets.
+Tagged `v0.y.z` releases use platform binary archives, skill archives,
+installer assets, source archives, checksums, SBOMs, attestations, release
+verification docs, and immutable published assets.
 
 ## Contributing
 

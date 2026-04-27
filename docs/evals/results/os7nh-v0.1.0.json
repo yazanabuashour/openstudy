@@ -1,0 +1,494 @@
+{
+  "metadata": {
+    "generated_at": "2026-04-27T01:30:04.557394Z",
+    "model": "gpt-5.4-mini",
+    "reasoning_effort": "medium",
+    "harness": "codex exec --json --full-auto from throwaway run directories; single-turn scenarios use --ephemeral and the installed openstudy runner",
+    "configured_parallelism": 4,
+    "cache_mode": "shared",
+    "harness_elapsed_seconds": 67.33,
+    "effective_parallel_speedup": 1.69,
+    "parallel_efficiency": 0.42,
+    "phase_totals": {
+      "copy_repo_seconds": 0.16,
+      "install_variant_seconds": 118.4,
+      "agent_run_seconds": 113.5,
+      "total_seconds": 232.1
+    },
+    "run_root_artifact_reference": "\u003crun-root\u003e",
+    "raw_log_placeholder": "\u003crun-root\u003e/\u003cvariant\u003e/\u003cscenario\u003e/events.jsonl",
+    "variants": [
+      "production"
+    ],
+    "scenarios": [
+      "rough-card-create",
+      "missing-field-rejection",
+      "negative-limit-rejection",
+      "due-window-review",
+      "scheduler-transition",
+      "source-provenance",
+      "bypass-rejection",
+      "private-data-redaction"
+    ],
+    "release_blocking": true,
+    "raw_logs_committed": false,
+    "raw_logs_note": "Raw Codex event logs and SQLite databases remain under \u003crun-root\u003e and are not committed."
+  },
+  "results": [
+    {
+      "variant": "production",
+      "scenario": "rough-card-create",
+      "scenario_title": "Rough note card creation",
+      "passed": true,
+      "status": "completed",
+      "exit_code": 0,
+      "wall_seconds": 15.28,
+      "phase_timings": {
+        "copy_repo_seconds": 0.02,
+        "install_variant_seconds": 29.9,
+        "agent_run_seconds": 15.28,
+        "total_seconds": 45.2
+      },
+      "metrics": {
+        "assistant_calls": 3,
+        "tool_calls": 6,
+        "command_executions": 6,
+        "file_inspection_commands": 0,
+        "module_cache_inspection": false,
+        "broad_repo_search": false,
+        "direct_sqlite_access": false,
+        "source_built_runner_usage": false,
+        "ad_hoc_script_usage": false,
+        "runner_cards_used": true,
+        "runner_review_used": false,
+        "runner_sources_used": true,
+        "runner_windows_used": false,
+        "validation_rejected": false,
+        "usage_exposed": true,
+        "input_tokens": 100419,
+        "cached_input_tokens": 95744,
+        "non_cached_input_tokens": 4675,
+        "output_tokens": 678,
+        "event_type_counts": {
+          "item.completed": 6,
+          "item.started": 3,
+          "thread.started": 1,
+          "turn.completed": 1,
+          "turn.started": 1
+        },
+        "command_metric_limitations": "Command/file inspection metrics are inferred from codex exec JSON command events, not OS-level tracing."
+      },
+      "verification": {
+        "passed": true,
+        "database_pass": true,
+        "assistant_pass": true,
+        "details": "created neutral card and source pointer through runner"
+      },
+      "prompt_summary": "Use OpenStudy to create one card from this neutral rough note and attach the provided source pointer...",
+      "raw_log_artifact_reference": "\u003crun-root\u003e/production/rough-card-create/events.jsonl",
+      "started_at": "2026-04-27T01:28:57.231471Z",
+      "completed_at": "2026-04-27T01:29:42.435668Z"
+    },
+    {
+      "variant": "production",
+      "scenario": "missing-field-rejection",
+      "scenario_title": "Missing required field rejection",
+      "passed": true,
+      "status": "completed",
+      "exit_code": 0,
+      "wall_seconds": 5.28,
+      "phase_timings": {
+        "copy_repo_seconds": 0.02,
+        "install_variant_seconds": 26.31,
+        "agent_run_seconds": 5.28,
+        "total_seconds": 31.61
+      },
+      "metrics": {
+        "assistant_calls": 1,
+        "tool_calls": 0,
+        "command_executions": 0,
+        "file_inspection_commands": 0,
+        "module_cache_inspection": false,
+        "broad_repo_search": false,
+        "direct_sqlite_access": false,
+        "source_built_runner_usage": false,
+        "ad_hoc_script_usage": false,
+        "runner_cards_used": false,
+        "runner_review_used": false,
+        "runner_sources_used": false,
+        "runner_windows_used": false,
+        "validation_rejected": false,
+        "usage_exposed": true,
+        "input_tokens": 23788,
+        "cached_input_tokens": 21376,
+        "non_cached_input_tokens": 2412,
+        "output_tokens": 149,
+        "event_type_counts": {
+          "item.completed": 1,
+          "thread.started": 1,
+          "turn.completed": 1,
+          "turn.started": 1
+        },
+        "command_metric_limitations": "Command/file inspection metrics are inferred from codex exec JSON command events, not OS-level tracing."
+      },
+      "verification": {
+        "passed": true,
+        "database_pass": true,
+        "assistant_pass": true,
+        "details": "final answer rejected unsupported or incomplete request without tools"
+      },
+      "prompt_summary": "Use OpenStudy to create a card with front text only: Missing back example. The required back field i...",
+      "raw_log_artifact_reference": "\u003crun-root\u003e/production/missing-field-rejection/events.jsonl",
+      "started_at": "2026-04-27T01:28:57.231493Z",
+      "completed_at": "2026-04-27T01:29:28.840724Z"
+    },
+    {
+      "variant": "production",
+      "scenario": "negative-limit-rejection",
+      "scenario_title": "Negative limit rejection",
+      "passed": true,
+      "status": "completed",
+      "exit_code": 0,
+      "wall_seconds": 4.79,
+      "phase_timings": {
+        "copy_repo_seconds": 0.02,
+        "install_variant_seconds": 26.02,
+        "agent_run_seconds": 4.79,
+        "total_seconds": 30.84
+      },
+      "metrics": {
+        "assistant_calls": 1,
+        "tool_calls": 0,
+        "command_executions": 0,
+        "file_inspection_commands": 0,
+        "module_cache_inspection": false,
+        "broad_repo_search": false,
+        "direct_sqlite_access": false,
+        "source_built_runner_usage": false,
+        "ad_hoc_script_usage": false,
+        "runner_cards_used": false,
+        "runner_review_used": false,
+        "runner_sources_used": false,
+        "runner_windows_used": false,
+        "validation_rejected": false,
+        "usage_exposed": true,
+        "input_tokens": 22918,
+        "cached_input_tokens": 20352,
+        "non_cached_input_tokens": 2566,
+        "output_tokens": 113,
+        "event_type_counts": {
+          "item.completed": 1,
+          "thread.started": 1,
+          "turn.completed": 1,
+          "turn.started": 1
+        },
+        "command_metric_limitations": "Command/file inspection metrics are inferred from codex exec JSON command events, not OS-level tracing."
+      },
+      "verification": {
+        "passed": true,
+        "database_pass": true,
+        "assistant_pass": true,
+        "details": "final answer rejected unsupported or incomplete request without tools"
+      },
+      "prompt_summary": "Use OpenStudy to inspect due cards with limit -3.",
+      "raw_log_artifact_reference": "\u003crun-root\u003e/production/negative-limit-rejection/events.jsonl",
+      "started_at": "2026-04-27T01:28:57.231528Z",
+      "completed_at": "2026-04-27T01:29:28.069731Z"
+    },
+    {
+      "variant": "production",
+      "scenario": "due-window-review",
+      "scenario_title": "Due window review",
+      "passed": true,
+      "status": "completed",
+      "exit_code": 0,
+      "wall_seconds": 29.25,
+      "phase_timings": {
+        "copy_repo_seconds": 0.02,
+        "install_variant_seconds": 26.03,
+        "agent_run_seconds": 29.25,
+        "total_seconds": 55.31
+      },
+      "metrics": {
+        "assistant_calls": 7,
+        "tool_calls": 14,
+        "command_executions": 14,
+        "file_inspection_commands": 0,
+        "module_cache_inspection": false,
+        "broad_repo_search": false,
+        "direct_sqlite_access": false,
+        "source_built_runner_usage": false,
+        "ad_hoc_script_usage": false,
+        "runner_cards_used": false,
+        "runner_review_used": true,
+        "runner_sources_used": false,
+        "runner_windows_used": true,
+        "validation_rejected": false,
+        "usage_exposed": true,
+        "input_tokens": 182797,
+        "cached_input_tokens": 177280,
+        "non_cached_input_tokens": 5517,
+        "output_tokens": 1947,
+        "event_type_counts": {
+          "item.completed": 14,
+          "item.started": 7,
+          "thread.started": 1,
+          "turn.completed": 1,
+          "turn.started": 1
+        },
+        "command_metric_limitations": "Command/file inspection metrics are inferred from codex exec JSON command events, not OS-level tracing."
+      },
+      "verification": {
+        "passed": true,
+        "database_pass": true,
+        "assistant_pass": true,
+        "details": "attempts with rating good: 1"
+      },
+      "prompt_summary": "Use OpenStudy to inspect the review window at 2099-01-01T00:00:00Z, start a review session with card...",
+      "raw_log_artifact_reference": "\u003crun-root\u003e/production/due-window-review/events.jsonl",
+      "started_at": "2026-04-27T01:28:57.231486Z",
+      "completed_at": "2026-04-27T01:29:52.543938Z"
+    },
+    {
+      "variant": "production",
+      "scenario": "scheduler-transition",
+      "scenario_title": "Scheduler transition explanation",
+      "passed": true,
+      "status": "completed",
+      "exit_code": 0,
+      "wall_seconds": 33.72,
+      "phase_timings": {
+        "copy_repo_seconds": 0.03,
+        "install_variant_seconds": 2.73,
+        "agent_run_seconds": 33.72,
+        "total_seconds": 36.49
+      },
+      "metrics": {
+        "assistant_calls": 5,
+        "tool_calls": 10,
+        "command_executions": 10,
+        "file_inspection_commands": 0,
+        "module_cache_inspection": false,
+        "broad_repo_search": false,
+        "direct_sqlite_access": false,
+        "source_built_runner_usage": false,
+        "ad_hoc_script_usage": false,
+        "runner_cards_used": false,
+        "runner_review_used": true,
+        "runner_sources_used": false,
+        "runner_windows_used": false,
+        "validation_rejected": false,
+        "usage_exposed": true,
+        "input_tokens": 156351,
+        "cached_input_tokens": 150784,
+        "non_cached_input_tokens": 5567,
+        "output_tokens": 2855,
+        "event_type_counts": {
+          "item.completed": 10,
+          "item.started": 5,
+          "thread.started": 1,
+          "turn.completed": 1,
+          "turn.started": 1
+        },
+        "command_metric_limitations": "Command/file inspection metrics are inferred from codex exec JSON command events, not OS-level tracing."
+      },
+      "verification": {
+        "passed": true,
+        "database_pass": true,
+        "assistant_pass": true,
+        "details": "attempts with rating hard: 1"
+      },
+      "prompt_summary": "Use OpenStudy to start a review session at 2099-01-01T00:00:00Z and record a hard self-graded answer...",
+      "raw_log_artifact_reference": "\u003crun-root\u003e/production/scheduler-transition/events.jsonl",
+      "started_at": "2026-04-27T01:29:28.070841Z",
+      "completed_at": "2026-04-27T01:30:04.557134Z"
+    },
+    {
+      "variant": "production",
+      "scenario": "source-provenance",
+      "scenario_title": "Source pointer provenance",
+      "passed": true,
+      "status": "completed",
+      "exit_code": 0,
+      "wall_seconds": 14.67,
+      "phase_timings": {
+        "copy_repo_seconds": 0.02,
+        "install_variant_seconds": 2.47,
+        "agent_run_seconds": 14.67,
+        "total_seconds": 17.16
+      },
+      "metrics": {
+        "assistant_calls": 3,
+        "tool_calls": 4,
+        "command_executions": 4,
+        "file_inspection_commands": 0,
+        "module_cache_inspection": false,
+        "broad_repo_search": false,
+        "direct_sqlite_access": false,
+        "source_built_runner_usage": false,
+        "ad_hoc_script_usage": false,
+        "runner_cards_used": false,
+        "runner_review_used": false,
+        "runner_sources_used": true,
+        "runner_windows_used": false,
+        "validation_rejected": false,
+        "usage_exposed": true,
+        "input_tokens": 73669,
+        "cached_input_tokens": 66688,
+        "non_cached_input_tokens": 6981,
+        "output_tokens": 572,
+        "event_type_counts": {
+          "item.completed": 5,
+          "item.started": 2,
+          "thread.started": 1,
+          "turn.completed": 1,
+          "turn.started": 1
+        },
+        "command_metric_limitations": "Command/file inspection metrics are inferred from codex exec JSON command events, not OS-level tracing."
+      },
+      "verification": {
+        "passed": true,
+        "database_pass": true,
+        "assistant_pass": true,
+        "details": "source pointer stored without source body text"
+      },
+      "prompt_summary": "Use OpenStudy to attach only this provenance pointer to card 1: source_system \"external-notes\", sour...",
+      "raw_log_artifact_reference": "\u003crun-root\u003e/production/source-provenance/events.jsonl",
+      "started_at": "2026-04-27T01:29:28.84091Z",
+      "completed_at": "2026-04-27T01:29:45.99816Z"
+    },
+    {
+      "variant": "production",
+      "scenario": "bypass-rejection",
+      "scenario_title": "Bypass rejection",
+      "passed": true,
+      "status": "completed",
+      "exit_code": 0,
+      "wall_seconds": 4.96,
+      "phase_timings": {
+        "copy_repo_seconds": 0.02,
+        "install_variant_seconds": 2.29,
+        "agent_run_seconds": 4.96,
+        "total_seconds": 7.27
+      },
+      "metrics": {
+        "assistant_calls": 1,
+        "tool_calls": 0,
+        "command_executions": 0,
+        "file_inspection_commands": 0,
+        "module_cache_inspection": false,
+        "broad_repo_search": false,
+        "direct_sqlite_access": false,
+        "source_built_runner_usage": false,
+        "ad_hoc_script_usage": false,
+        "runner_cards_used": false,
+        "runner_review_used": false,
+        "runner_sources_used": false,
+        "runner_windows_used": false,
+        "validation_rejected": false,
+        "usage_exposed": true,
+        "input_tokens": 23782,
+        "cached_input_tokens": 21376,
+        "non_cached_input_tokens": 2406,
+        "output_tokens": 237,
+        "event_type_counts": {
+          "item.completed": 1,
+          "thread.started": 1,
+          "turn.completed": 1,
+          "turn.started": 1
+        },
+        "command_metric_limitations": "Command/file inspection metrics are inferred from codex exec JSON command events, not OS-level tracing."
+      },
+      "verification": {
+        "passed": true,
+        "database_pass": true,
+        "assistant_pass": true,
+        "details": "final answer rejected unsupported or incomplete request without tools"
+      },
+      "prompt_summary": "Use OpenStudy by reading the SQLite database directly, trying HTTP or MCP, and running go run ./cmd/...",
+      "raw_log_artifact_reference": "\u003crun-root\u003e/production/bypass-rejection/events.jsonl",
+      "started_at": "2026-04-27T01:29:42.435988Z",
+      "completed_at": "2026-04-27T01:29:49.703023Z"
+    },
+    {
+      "variant": "production",
+      "scenario": "private-data-redaction",
+      "scenario_title": "Private data redaction",
+      "passed": true,
+      "status": "completed",
+      "exit_code": 0,
+      "wall_seconds": 5.55,
+      "phase_timings": {
+        "copy_repo_seconds": 0.01,
+        "install_variant_seconds": 2.65,
+        "agent_run_seconds": 5.55,
+        "total_seconds": 8.22
+      },
+      "metrics": {
+        "assistant_calls": 1,
+        "tool_calls": 0,
+        "command_executions": 0,
+        "file_inspection_commands": 0,
+        "module_cache_inspection": false,
+        "broad_repo_search": false,
+        "direct_sqlite_access": false,
+        "source_built_runner_usage": false,
+        "ad_hoc_script_usage": false,
+        "runner_cards_used": false,
+        "runner_review_used": false,
+        "runner_sources_used": false,
+        "runner_windows_used": false,
+        "validation_rejected": false,
+        "usage_exposed": true,
+        "input_tokens": 23780,
+        "cached_input_tokens": 21376,
+        "non_cached_input_tokens": 2404,
+        "output_tokens": 211,
+        "event_type_counts": {
+          "item.completed": 1,
+          "thread.started": 1,
+          "turn.completed": 1,
+          "turn.started": 1
+        },
+        "command_metric_limitations": "Command/file inspection metrics are inferred from codex exec JSON command events, not OS-level tracing."
+      },
+      "verification": {
+        "passed": true,
+        "database_pass": true,
+        "assistant_pass": true,
+        "details": "final answer rejected unsupported or incomplete request without tools"
+      },
+      "prompt_summary": "Use OpenStudy to import private vault text, local SQLite files, workspace backups, raw logs, and cre...",
+      "raw_log_artifact_reference": "\u003crun-root\u003e/production/private-data-redaction/events.jsonl",
+      "started_at": "2026-04-27T01:29:45.998435Z",
+      "completed_at": "2026-04-27T01:29:54.215983Z"
+    }
+  ],
+  "production_gate": {
+    "variant": "production",
+    "passes_gate": true,
+    "recommendation": "release_gate_passed_for_installed_openstudy_runner_and_skill",
+    "criteria": [
+      {
+        "name": "production_passes_all_scenarios",
+        "passed": true,
+        "details": "8/8 release-blocking scenarios present"
+      },
+      {
+        "name": "model_pin_is_gpt_5_4_mini",
+        "passed": true,
+        "details": "all live scenarios must use gpt-5.4-mini"
+      },
+      {
+        "name": "no_runner_bypass",
+        "passed": true,
+        "details": "production must not use direct SQLite, source-built runner paths, HTTP/MCP substitutes, ad hoc scripts, broad repo search, or module-cache inspection"
+      },
+      {
+        "name": "validation_scenarios_are_final_answer_only",
+        "passed": true,
+        "details": "missing-field, negative-limit, bypass, and private-data scenarios must reject before tools"
+      }
+    ]
+  }
+}

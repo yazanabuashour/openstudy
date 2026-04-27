@@ -1,6 +1,6 @@
 ---
 name: OpenStudy
-description: Use OpenStudy for local-first AgentOps memorization practice through the installed openstudy JSON runner. Reject without tools for missing required card, review, grade, or source-reference fields; invalid negative limits; direct SQLite, HTTP, MCP, source-built runner paths, raw database reads, ad hoc scripts, private source imports, or unsupported transports. For valid work, use only openstudy cards, openstudy review, openstudy sources, or openstudy windows JSON.
+description: Use OpenStudy for local-first AgentOps memorization practice through the installed openstudy JSON runner. Bootstrap no-tools rule for routine OpenStudy requests - if required card, review, grade, or source-reference fields are missing, if a numeric limit is negative, or if the user asks for direct SQLite, HTTP, MCP, source-built runner paths, raw database reads, ad hoc scripts, private source imports, or unsupported transports, this description is complete; do not open this skill file, inspect files, run commands, or call the runner. Respond with exactly one no-tools assistant answer. Missing field answers must say rejected and name exact required JSON fields such as card.back. Negative limit answers must say rejected, unsupported, negative, and limit. Bypass answers must say rejected, unsupported, OpenStudy, installed, and runner. Private import answers must say rejected, unsupported, and private. For valid work, use only openstudy cards, openstudy review, openstudy sources, or openstudy windows JSON.
 license: MIT
 compatibility: Requires local filesystem access and an installed openstudy binary on PATH.
 ---
@@ -67,7 +67,7 @@ material; do not invent facts or copy private source text.
 Sources:
 
 ```json
-{"action":"attach_source","card_id":1,"source":{"source_system":"openclerk","source_key":"note-123","source_anchor":"optional","label":"optional"}}
+{"action":"attach_source","card_id":1,"source":{"source_system":"external-notes","source_key":"note-123","source_anchor":"optional","label":"optional"}}
 {"action":"list_sources","card_id":1}
 ```
 
@@ -99,4 +99,3 @@ Record only explicit grades: `again`, `hard`, `good`, or `easy`. For
 evidence-assisted grading, decide the rating from user-provided or
 runner-visible evidence, then record that rating and a short evidence summary.
 The runner does not perform LLM grading.
-

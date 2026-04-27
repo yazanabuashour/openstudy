@@ -4,11 +4,10 @@ Outside contributors do not need Beads to contribute to this repository.
 
 ## Project Shape
 
-OpenStudy has internal storage and scheduler code from `os-ful`, plus the
-promoted `openstudy` JSON runner and single-file skill from `os-5v4`. The
-repository now includes production eval and local release verification tooling
-from `os-7nh`, but it does not publish releases or expose automation runtime
-surfaces.
+OpenStudy has internal storage and scheduler code, plus the promoted
+`openstudy` JSON runner and single-file skill. The repository includes
+production eval and local release verification tooling, but it does not expose
+automation runtime surfaces.
 
 Future product surfaces must follow the accepted Beads decision chain before
 they are added.
@@ -57,6 +56,6 @@ artifacts outside committed docs.
 
 ## Support and Compatibility
 
-Before `1.0`, compatibility is best effort and may change between implementation
-milestones. OpenStudy does not currently promise a hosted service, remote HTTP
-API, MCP server, published release, or automation runtime.
+Before `1.0`, compatibility is best effort and may change between tagged
+releases. OpenStudy does not currently promise a hosted service, remote HTTP
+API, MCP server, public SDK, or automation runtime.

@@ -45,8 +45,8 @@ Expected pressure:
 
 - card candidates preserve the intended term and prompt even when notes are
   rough.
-- generated practice state is OpenStudy-owned and does not mutate OpenClerk or
-  vault sources.
+- generated practice state is OpenStudy-owned and does not mutate external
+  source systems.
 - provenance is represented as a lightweight reference, not copied source
   content.
 - ambiguous notes produce a request for missing context or a rejected candidate,
@@ -141,9 +141,8 @@ Failure examples:
 
 ### Source-Reference Provenance
 
-Candidate setup: attach neutral source references for OpenClerk and vault-like
-sources using placeholder source systems, stable keys, optional anchors, and
-neutral labels.
+Candidate setup: attach neutral source references for external sources using
+placeholder source systems, stable keys, optional anchors, and neutral labels.
 
 Expected pressure:
 
@@ -158,7 +157,7 @@ Failure examples:
 - vault text, private source inventories, delivery logs, review logs, or local
   filesystem paths are copied into eval materials.
 - source references become the mutable review store.
-- docs imply direct OpenClerk or vault mutation.
+- docs imply direct external source mutation.
 
 ### Bypass Rejection
 
@@ -214,8 +213,8 @@ Failure examples:
   eval scenarios are pinned to `gpt-5.4-mini`.
 - the promoted surface keeps exact runner, skill, schema, storage, scheduler,
   automation, install, release, and eval-harness details explicit.
-- any release path follows the OpenHealth immutable-release posture and eval
-  gates before publication.
+- any release path follows the immutable-release posture and eval gates before
+  publication.
 
 ## Historical Non-Goals
 

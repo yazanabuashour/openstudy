@@ -8,7 +8,7 @@ This POC compares candidate OpenStudy memorization architecture options without
 shipping product code. It builds on
 [`docs/adr/0001-agentops-memorization-direction.md`](../adr/0001-agentops-memorization-direction.md),
 which frames OpenStudy as the future owner of mutable memorization practice
-state while treating OpenClerk and vault references as provenance only.
+state while treating external source references as provenance only.
 
 This document is not an implementation spec. It does not define a public API,
 runner command, skill contract, database schema, scheduler implementation,
@@ -39,16 +39,16 @@ comparison.
 
 ## Runner Domains
 
-If later promoted, the runner should remain OpenHealth-shaped: an installed
-local JSON runner invoked by a single-file skill. Candidate runner domains are:
+If later promoted, the runner should remain local-first: an installed local JSON
+runner invoked by a single-file skill. Candidate runner domains are:
 
 - decks/cards: create and maintain practice items as OpenStudy-owned state.
 - review sessions: select due or manually queued cards for a bounded session.
 - answer recording: capture answer attempts without importing private source
   content.
 - grading evidence: record self-grade or evidence-assisted results.
-- source references: store provenance pointers to OpenClerk or vault sources
-  without copying private material.
+- source references: store provenance pointers to external sources without
+  copying private material.
 - review windows: expose due-review windows for automation planning without
   adding a scheduler runtime in this POC.
 
@@ -82,11 +82,11 @@ rejection in the eval plan.
 
 ## Source References
 
-OpenStudy should store provenance references to OpenClerk or vault sources, not
-source content. Candidate references may identify the source system, stable
-source key, optional section or anchor, and a neutral label. They must not copy
-private study material, vault text, delivery logs, review logs, source
-inventories, credentials, or local filesystem details into this repository.
+OpenStudy should store provenance references to external sources, not source
+content. Candidate references may identify the source system, stable source key,
+optional section or anchor, and a neutral label. They must not copy private
+study material, vault text, delivery logs, review logs, source inventories,
+credentials, or local filesystem details into this repository.
 
 POC recommendation: treat source references as lightweight provenance pointers
 owned by OpenStudy records. Private content remains outside OpenStudy docs and
@@ -106,20 +106,20 @@ POC recommendation: carry review-window modeling into the eval as observable
 planning behavior while deferring automation runtime, reminders, monitors, and
 scheduling implementation.
 
-## OpenHealth Fit
+## Local-First Fit
 
-OpenHealth remains the infrastructure reference if implementation is later
-promoted: installed JSON runner, single-file skill, host-local storage outside
-the repository, repo-relative documentation, immutable release assets, and eval
-gates before release.
+The established local-first release posture remains the infrastructure
+reference if implementation is later promoted: installed JSON runner,
+single-file skill, host-local storage outside the repository, repo-relative
+documentation, immutable release assets, and eval gates before release.
 
 This shape fits OpenStudy because memorization state is mutable and local, the
 skill can provide task policy to agents, and the runner can centralize
 validation, persistence, privacy checks, and bypass rejection. It also keeps
 future releases verifiable instead of relying on source-built local behavior.
 
-POC recommendation: keep OpenHealth-style infrastructure as the preferred path
-for any promoted implementation.
+POC recommendation: keep local-first runner infrastructure as the preferred
+path for any promoted implementation.
 
 ## Risks and Eval Carry-Forward
 
@@ -135,12 +135,11 @@ The next eval should pressure-test:
 
 ## Recommendation
 
-Carry forward an OpenHealth-style JSON runner plus single-file skill as the
-preferred future runtime shape, with OpenStudy-owned host-local mutable state
-and provenance references only. Evaluate FSRS-style scheduling first, keep SM-2
-as fallback, and retain manual queueing as a baseline. Require bypass rejection
-and private-data redaction as acceptance criteria for the eval and decision
-chain.
+Carry forward a local JSON runner plus single-file skill as the preferred
+future runtime shape, with OpenStudy-owned host-local mutable state and
+provenance references only. Evaluate FSRS-style scheduling first, keep SM-2 as
+fallback, and retain manual queueing as a baseline. Require bypass rejection and
+private-data redaction as acceptance criteria for the eval and decision chain.
 
 This POC does not authorize implementation. Final promotion remains deferred to
 `os-24u` and `os-pke`.

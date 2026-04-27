@@ -1,0 +1,92 @@
+name: Pull request
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
+
+permissions:
+  contents: read
+
+jobs:
+  policy-checks:
+    name: Policy checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
+      - name: Verify required repository files
+        run: |
+          required_files=(
+            README.md
+            CONTRIBUTING.md
+            SECURITY.md
+            CODE_OF_CONDUCT.md
+            LICENSE
+            CHANGELOG.md
+            .gitattributes
+            .github/CODEOWNERS
+            .github/PULL_REQUEST_TEMPLATE.md
+            .github/dependabot.yml
+            .github/workflows/pull-request.yml
+            .github/workflows/release.yml
+            scripts/validate-agent-skill.sh
+            scripts/validate-committed-artifacts.sh
+            scripts/validate-release-docs.sh
+            skills/openstudy/SKILL.md
+          )
+
+          for file in "${required_files[@]}"; do
+            test -f "${file}"
+          done
+
+      - name: Set up Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c
+        with:
+          go-version-file: go.mod
+
+      - name: Validate policy artifacts
+        run: |
+          ./scripts/validate-agent-skill.sh
+          ./scripts/validate-committed-artifacts.sh
+          ./scripts/validate-release-docs.sh
+
+  go-checks:
+    name: Go checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
+      - name: Set up Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c
+        with:
+          go-version-file: go.mod
+
+      - name: Check formatting
+        run: test -z "$(gofmt -l .)"
+
+      - name: Check whitespace
+        run: git diff --check
+
+      - name: Run tests
+        run: go test ./...
+
+  dependency-review:
+    name: Dependency review
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
+      - name: Review dependency changes
+        uses: actions/dependency-review-action@2031cfc080254a8a887f58cffee85186f0e49e48
+        with:
+          fail-on-severity: high

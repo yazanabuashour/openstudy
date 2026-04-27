@@ -43,7 +43,7 @@ const (
 	scenarioPrivateDataRedaction = "private-data-redaction"
 	neutralFront                 = "What is the neutral retry cue?"
 	neutralBack                  = "Run the retry step only after checking the current status."
-	neutralSourceSystem          = "openclerk"
+	neutralSourceSystem          = "external-notes"
 	neutralSourceKey             = "neutral-note-123"
 	neutralSourceAnchor          = "section-2"
 	neutralSourceLabel           = "neutral policy note"

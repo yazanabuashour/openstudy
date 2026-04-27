@@ -110,7 +110,7 @@ func TestRunnerCardsSourcesWindowsAndReviewRoundTrip(t *testing.T) {
 		t.Fatalf("list result = %+v", listResult)
 	}
 
-	sourceRequest := `{"action":"attach_source","card_id":%d,"source":{"source_system":"openclerk","source_key":"note-123","label":"planning note"}}`
+	sourceRequest := `{"action":"attach_source","card_id":%d,"source":{"source_system":"external-notes","source_key":"note-123","label":"planning note"}}`
 	var sourceResult runner.SourcesTaskResult
 	code, stderr = runJSON(t, []string{"sources", "--db", dbPath}, sprintf(sourceRequest, cardID), &sourceResult)
 	if code != 0 {
@@ -125,7 +125,7 @@ func TestRunnerCardsSourcesWindowsAndReviewRoundTrip(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("list sources exit = %d stderr=%s", code, stderr)
 	}
-	if len(sourcesResult.Sources) != 1 || sourcesResult.Sources[0].SourceSystem != "openclerk" {
+	if len(sourcesResult.Sources) != 1 || sourcesResult.Sources[0].SourceSystem != "external-notes" {
 		t.Fatalf("sources result = %+v", sourcesResult)
 	}
 
@@ -225,7 +225,7 @@ func TestRunnerValidationRejectionsAcrossDomains(t *testing.T) {
 		reason string
 	}{
 		{name: "cards negative limit", args: []string{"cards", "--db", dbPath}, input: `{"action":"list_cards","limit":-1}`, reason: "limit must be greater than or equal to 0"},
-		{name: "sources missing key", args: []string{"sources", "--db", dbPath}, input: `{"action":"attach_source","card_id":1,"source":{"source_system":"openclerk"}}`, reason: "source.source_key is required"},
+		{name: "sources missing key", args: []string{"sources", "--db", dbPath}, input: `{"action":"attach_source","card_id":1,"source":{"source_system":"external-notes"}}`, reason: "source.source_key is required"},
 		{name: "windows malformed now", args: []string{"windows", "--db", dbPath}, input: `{"action":"due_cards","now":"tomorrow"}`, reason: "now must be an RFC3339 timestamp"},
 		{name: "review negative card limit", args: []string{"review", "--db", dbPath}, input: `{"action":"start_session","session":{"card_limit":-1}}`, reason: "session.card_limit must be greater than or equal to 0"},
 		{name: "review missing answer", args: []string{"review", "--db", dbPath}, input: `{"action":"record_answer","session_id":1,"card_id":1,"rating":"good","grader":"self"}`, reason: "answer_text is required"},

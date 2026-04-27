@@ -8,23 +8,23 @@ OpenStudy is a local-first AgentOps memorization runtime for agents. The
 intended product helps agents practice and retain operational knowledge, and it
 owns memorization practice state such as cards, review
 scheduling, grading history, and automation state. Cards may later link back to
-OpenClerk or vault source notes for provenance, but OpenStudy owns mutable
-review practice data.
+external source notes for provenance, but OpenStudy owns mutable review
+practice data.
 
 ## OpenStudy Planning Boundary
 
-OpenStudy currently has promoted internal storage and scheduler code from
-`os-ful`, the `openstudy` JSON runner and single-file skill from `os-5v4`, and
-production eval plus local release verification gates from `os-7nh`. Do not add
-automation runtime, hosted services, HTTP/MCP transports, public SDKs, remote
-publication workflows, or product API beyond the promoted runner domains until
-the Beads ADR, POC, eval, and decision chain explicitly promotes that work.
+OpenStudy currently has promoted internal storage and scheduler code, the
+`openstudy` JSON runner and single-file skill, and production eval plus local
+release verification gates. Do not add automation runtime, hosted services,
+HTTP/MCP transports, public SDKs, remote publication workflows, or product API
+beyond the promoted runner domains until the Beads ADR, POC, eval, and decision
+chain explicitly promotes that work.
 
-Use OpenHealth as the infrastructure reference: installed JSON runner,
+Use the established local-first infrastructure posture: installed JSON runner,
 single-file skill, local SQLite storage, immutable release posture,
-repo-relative docs, and eval gates. Use OpenClerk as the decision-process
-reference: ADR, POC, eval, decision, then blocked implementation placeholders.
-Future publication work must follow the OpenHealth immutable-release posture.
+repo-relative docs, and eval gates. Use the established decision process: ADR,
+POC, eval, decision, then blocked implementation placeholders. Future
+publication work must follow the immutable-release posture.
 
 ## Repository Hygiene
 

@@ -27,6 +27,26 @@ var privateMarkers = []string{
 	"credential",
 }
 
+var forbiddenReferenceMarkers = []string{
+	"open" + "health",
+	"open" + "clerk",
+	"open" + "brief",
+}
+
+var requiredExportIgnoreRules = []string{
+	".beads/",
+	".claude/",
+	".dolt/",
+	".agents/",
+	"dist/",
+	"bin/",
+	"*.db",
+	"*.sqlite",
+	"*.sqlite3",
+	"*.jsonl",
+	".env",
+}
+
 func main() {
 	if err := run(os.Args[1:], os.Stdout); err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "error: %v\n", err)
@@ -46,6 +66,9 @@ func run(args []string, stdout io.Writer) error {
 }
 
 func validateCommittedArtifacts(root string) error {
+	if err := validateExportIgnoreRules(root); err != nil {
+		return err
+	}
 	files, err := trackedFiles(root)
 	if err != nil {
 		return err
@@ -138,6 +161,11 @@ func validatePublicArtifactText(rel string, text string) error {
 			return fmt.Errorf("%s:%d marks raw eval logs as committed", rel, lineNumber)
 		}
 		lower := strings.ToLower(line)
+		for _, marker := range forbiddenReferenceMarkers {
+			if strings.Contains(lower, marker) {
+				return fmt.Errorf("%s:%d contains forbidden local reference marker %q", rel, lineNumber, marker)
+			}
+		}
 		context := paragraphContext(lines, lineIndex)
 		if isNeutralPolicyLine(context) {
 			continue
@@ -146,6 +174,30 @@ func validatePublicArtifactText(rel string, text string) error {
 			if strings.Contains(lower, marker) {
 				return fmt.Errorf("%s:%d contains private-data marker %q", rel, lineNumber, marker)
 			}
+		}
+	}
+	return nil
+}
+
+func validateExportIgnoreRules(root string) error {
+	content, err := os.ReadFile(filepath.Join(root, ".gitattributes"))
+	if err != nil {
+		if os.IsNotExist(err) {
+			return errors.New(".gitattributes not found")
+		}
+		return fmt.Errorf("read .gitattributes: %w", err)
+	}
+	lines := strings.Split(strings.ReplaceAll(string(content), "\r\n", "\n"), "\n")
+	rules := map[string]bool{}
+	for _, line := range lines {
+		fields := strings.Fields(line)
+		if len(fields) >= 2 && fields[1] == "export-ignore" {
+			rules[fields[0]] = true
+		}
+	}
+	for _, required := range requiredExportIgnoreRules {
+		if !rules[required] {
+			return fmt.Errorf(".gitattributes missing export-ignore rule for %s", required)
 		}
 	}
 	return nil
@@ -172,6 +224,8 @@ func isNeutralPolicyLine(lower string) bool {
 	return strings.Contains(lower, "must not contain") ||
 		strings.Contains(lower, "do not add") ||
 		strings.Contains(lower, "do not include") ||
+		strings.Contains(lower, "without including") ||
+		strings.Contains(lower, "no private") ||
 		strings.Contains(lower, "must not copy") ||
 		strings.Contains(lower, "avoid") ||
 		strings.Contains(lower, "review docs") ||
