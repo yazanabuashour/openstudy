@@ -4,7 +4,7 @@ go 1.26.2
 
 require (
 	github.com/open-spaced-repetition/go-fsrs/v4 v4.0.0-20260415025435-7ef182b5749d
-	modernc.org/sqlite v1.49.1
+	modernc.org/sqlite v1.50.0
 )
 
 require (
