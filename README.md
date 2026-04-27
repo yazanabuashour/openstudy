@@ -1,52 +1,82 @@
 # OpenStudy
 
 OpenStudy is a local-first AgentOps memorization runtime for agents. The
-intended product helps agents practice and retain operational
-knowledge through memorization workflows, and it owns memorization practice
-state: cards, review scheduling, grading history, and automation state. Cards
-may later link back to external source notes for provenance, but OpenStudy owns
-mutable review practice data.
+supported agent path is a small `openstudy` runner plus a single-file skill.
 
-OpenStudy is designed for open-source distribution. This repository must not
-contain personal source inventories, private study material, private vault
-content, delivery or review logs, workspace backups, run history, local SQLite
-databases, credentials, private infrastructure details, raw private logs, or
-sensitive sample content.
+## Install
 
-## Planning Status
+Tell your agent:
 
-This repository has completed the first planning decision chain. Decision
-[`docs/decision/0001-openstudy-memorization-promotion.md`](docs/decision/0001-openstudy-memorization-promotion.md)
-accepted a narrow implementation path. The `os-ful` bead adds the first
-internal storage and scheduler layer, and `os-5v4` adds the first JSON runner
-and single-file skill. The `os-7nh` bead adds the first production eval and
-local release verification gates. Automation runtime and remote release
-publication remain gated behind ordered Beads implementation work.
+```text
+Install OpenStudy from https://github.com/yazanabuashour/openstudy.
+Complete both required steps before reporting success:
+1. Install and verify the openstudy runner binary with `openstudy --version`.
+2. Register the OpenStudy skill from skills/openstudy/SKILL.md using your native skill system.
+```
 
-The current planning ADR is
-[`docs/adr/0001-agentops-memorization-direction.md`](docs/adr/0001-agentops-memorization-direction.md).
-It frames the AgentOps memorization direction without promoting implementation.
-The current planning POC is
-[`docs/poc/0001-memorization-architecture-options.md`](docs/poc/0001-memorization-architecture-options.md).
-It compares architecture options without shipping product code.
-The current eval plan is
-[`docs/eval/0001-agentops-memorization-pressure.md`](docs/eval/0001-agentops-memorization-pressure.md).
-It defines the pressure scenarios implemented by the production eval harness in
-[`docs/evals/agent-production.md`](docs/evals/agent-production.md).
-The accepted promotion decision is
-[`docs/decision/0001-openstudy-memorization-promotion.md`](docs/decision/0001-openstudy-memorization-promotion.md).
-It promotes a local-first runner and skill path while keeping implementation
-ordered through the Beads placeholder chain.
+For the latest release:
 
-## AgentOps Direction
+```bash
+sh -c "$(curl -fsSL https://github.com/yazanabuashour/openstudy/releases/latest/download/install.sh)"
+```
 
-The agent-facing path is the AgentOps pattern: a single-file skill gives the
-agent task policy, and a local JSON runner performs stateful memorization
-operations through structured JSON.
+For a pinned release:
+
+```bash
+OPENSTUDY_VERSION=v0.1.0 sh -c "$(curl -fsSL https://github.com/yazanabuashour/openstudy/releases/download/v0.1.0/install.sh)"
+```
+
+A complete install has two parts:
+
+- `openstudy --version` succeeds
+- the matching skill is registered from `skills/openstudy/SKILL.md`,
+  `https://github.com/yazanabuashour/openstudy/tree/<tag>/skills/openstudy`,
+  or `openstudy_<version>_skill.tar.gz`
+
+Use the agent's native skill manager. OpenStudy does not require a specific
+skill path or agent implementation.
+
+## Upgrade
+
+Tell your agent:
+
+```text
+Upgrade OpenStudy from https://github.com/yazanabuashour/openstudy.
+Complete both required steps before reporting success:
+1. Upgrade and verify the openstudy runner binary with `openstudy --version`.
+2. Re-register the OpenStudy skill from skills/openstudy/SKILL.md using your native skill system.
+```
+
+Or upgrade the runner manually:
+
+```bash
+sh -c "$(curl -fsSL https://github.com/yazanabuashour/openstudy/releases/latest/download/install.sh)"
+```
+
+Then verify the runner and re-register the matching skill:
+
+```bash
+command -v openstudy
+openstudy --version
+
+```
+
+## AgentOps Architecture
+
+OpenStudy's agent-facing path is the AgentOps pattern: the skill gives the
+agent task policy, and the local runner performs stateful memorization
+operations through structured JSON. This keeps practice rules close to the
+agent, avoids broad repo search and ad hoc human CLI flows, and leaves storage
+local instead of requiring a hosted service.
+
+OpenStudy treats this runner/skill architecture as its supported interface for
+agents compared with traditional MCP or CLI-only integrations. The production
+eval gate exercises the installed runner and skill only.
 
 ## Runner Interface
 
-OpenStudy exposes an `openstudy` JSON runner for local use:
+The skill sends structured JSON on stdin and reads structured JSON from stdout
+for these runner domains:
 
 ```bash
 openstudy cards
@@ -55,75 +85,62 @@ openstudy sources
 openstudy windows
 ```
 
-Each domain accepts one JSON request on stdin and returns one JSON response on
-stdout. Validation failures return JSON with `rejected: true`; runtime failures
-exit nonzero and write to stderr. The single-file agent skill is
-[`skills/openstudy/SKILL.md`](skills/openstudy/SKILL.md).
+## Direct Go Package
 
-## Internal Local Storage
+OpenStudy `0.1.0` does not ship a supported public Go package or SDK. Go source
+in this repository is intended for contributors and the released runner. Agent
+installations should use the installed `openstudy` binary and registered skill.
 
-OpenStudy is local-first. Mutable memorization state lives in a host-local
-SQLite database outside the repository. Internal runtime path resolution uses
-`${XDG_DATA_HOME:-~/.local/share}/openstudy/openstudy.sqlite`, with
-`OPENSTUDY_DATABASE_PATH` and explicit config overrides for tests and future
-runner wiring. The database remains an implementation detail, not a routine
-agent control plane.
+## Local Storage
+
+The default SQLite path is
+`${XDG_DATA_HOME:-~/.local/share}/openstudy/openstudy.sqlite`. Override it with:
+
+- `OPENSTUDY_DATABASE_PATH`
+- `openstudy <domain> --db path`
+
+The SQLite database is an implementation detail of the runner. Routine agent
+work should use the installed runner, not direct SQLite access.
+
+## Eval Evidence
+
+The production runner/skill passed the 8-scenario `v0.1.0` release gate:
+[`docs/evals/results/os7nh-v0.1.0.md`](docs/evals/results/os7nh-v0.1.0.md).
+
+The eval protocol is documented in
+[`docs/evals/agent-production.md`](docs/evals/agent-production.md).
 
 ## Development
-
-Current implementation work is limited to internal storage, scheduling, runner,
-skill, eval gates, local release verification, docs, Beads state, and
-repository infrastructure until later beads promote automation or publication
-surfaces.
 
 Use the pinned local toolchain for repository development:
 
 ```bash
-mise trust
 mise install
+printf '%s\n' '{"action":"list_cards","status":"active","limit":10}' | \
+  OPENSTUDY_DATABASE_PATH="$(mktemp -d)/openstudy.sqlite" mise exec -- go run ./cmd/openstudy cards
 mise exec -- go test ./...
-```
-
-Useful verification commands for this stage:
-
-```bash
-git diff --check
 mise exec -- ./scripts/validate-agent-skill.sh
 mise exec -- ./scripts/validate-committed-artifacts.sh
 mise exec -- ./scripts/validate-release-docs.sh
-mise exec -- bd status --json
-mise exec -- bd list --json
-mise exec -- bd ready --json
-mise exec -- bd dep cycles --json
-mise exec -- bd where
-mise exec -- bd context --json
 ```
 
-Beads is initialized with the `os` prefix in embedded mode. In `bd 1.0.3`,
-`bd doctor --json` reports that doctor is not yet supported for embedded mode;
-use the commands above for routine verification.
+`mise.toml` is the canonical local toolchain source; use `mise exec -- ...` for
+repo checks.
 
-## Release 0.1.0
+## Releases
 
-OpenStudy `v0.1.0` is the first planned public release. Build candidate
-artifacts with:
-
-```bash
-mise exec -- ./scripts/build-release-bundle.sh <version> <out-dir>
-```
-
-Before publication, the production eval gate must pass:
-
-```bash
-mise exec -- go run ./scripts/agent-eval/os7nh run
-```
-
-Tagged `v0.y.z` releases use platform binary archives, skill archives,
-installer assets, source archives, checksums, SBOMs, attestations, release
-verification docs, and immutable published assets.
+Tagged `v0.y.z` releases publish platform binary archives, the skill archive,
+the installer, source archive, SHA256 checksums, a CycloneDX SBOM, and GitHub
+attestations. Published release assets are intended to be immutable going
+forward. See
+[`docs/release-verification.md`](docs/release-verification.md) for verification
+steps.
 
 ## Contributing
 
-Outside contributors should be able to work through GitHub issues and pull
-requests once contribution docs exist. Beads is maintainer-only workflow tooling
-and is not required for community contributions.
+Outside contributors can work entirely through GitHub issues and pull requests.
+Beads is maintainer-only workflow tooling and is not required for community
+contributions.
+
+See `CONTRIBUTING.md` for contribution expectations, `CODE_OF_CONDUCT.md` for
+community standards, and `SECURITY.md` for vulnerability reporting.
