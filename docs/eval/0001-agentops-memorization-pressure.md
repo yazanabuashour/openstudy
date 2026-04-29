@@ -27,6 +27,16 @@ The future promoted surface should prove that OpenStudy can:
 - reject direct SQLite, source-built, HTTP, MCP, and unsupported bypass paths.
 - redact private data from docs, outputs, fixtures, and examples.
 
+Future eval reports should also separate:
+
+- safety pass: provenance, privacy, bypass, approval, and repository-hygiene
+  boundaries held.
+- capability pass: current runner and skill primitives can technically complete
+  the workflow.
+- UX quality / taste debt: the workflow is acceptable for routine use, or it
+  passed only through high step count, long latency, exact prompt choreography,
+  or surprising clarification turns.
+
 ## Eval Model
 
 All future OpenStudy eval scenarios must run with `gpt-5.4-mini`. This is a
@@ -209,6 +219,9 @@ Failure examples:
 - scheduler behavior can be pressure-tested with deterministic examples.
 - free-text grading covers correct, partial, incorrect, hallucinated, and
   overgenerous-grading failure cases.
+- eval evidence records safety pass, capability pass, and UX quality
+  separately, so a technically passing workflow can still be tracked as taste
+  debt.
 - no eval harness or promoted eval workflow is accepted unless all OpenStudy
   eval scenarios are pinned to `gpt-5.4-mini`.
 - the promoted surface keeps exact runner, skill, schema, storage, scheduler,

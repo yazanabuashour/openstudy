@@ -26,6 +26,25 @@ repo-relative docs, and eval gates. Use the established decision process: ADR,
 POC, eval, decision, then blocked implementation placeholders. Future
 publication work must follow the immutable-release posture.
 
+## ADR/POC/Eval Decision Taste Review
+
+When doing OpenStudy ADR, POC, eval, promotion, or deferred-capability
+decision work, keep the existing evidence discipline but add a taste check
+before accepting a defer/reference outcome or a technically passing workflow:
+
+- Record safety pass, capability pass, and UX quality as separate conclusions.
+- Distinguish read/fetch/inspect permission from durable-write approval.
+  Routine inspection can be lower risk than mutating OpenStudy-owned practice
+  state, external systems, credentials, or irreversible actions.
+- Prefer extending the natural existing runner surface when user intent clearly
+  belongs there, instead of preserving a surprising adjacent workflow.
+- Treat "completed but ceremonial" eval passes as possible taste debt when they
+  require high step count, long latency, exact prompt choreography, or
+  surprising clarification turns.
+- Do not use taste review to bypass safety: provenance, authority,
+  auditability, local-first runner-only access, privacy, explicit approval
+  boundaries, and repository hygiene still apply.
+
 ## Repository Hygiene
 
 OpenStudy is intended for open-source distribution. This repository must not
