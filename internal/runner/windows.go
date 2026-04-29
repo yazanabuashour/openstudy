@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/yazanabuashour/openstudy/internal/localruntime"
+	"github.com/yazanabuashour/openstudy/internal/study"
 )
 
 const (
@@ -40,27 +40,21 @@ func RunWindowsTask(ctx context.Context, config Config, request WindowsTaskReque
 		}
 	}
 
-	runtime, err := localruntime.Open(ctx, localruntime.Config(config))
-	if err != nil {
-		return WindowsTaskResult{}, err
-	}
-	defer func() {
-		_ = runtime.Close()
-	}()
-
-	window, err := runtime.Service.ReviewWindow(ctx, normalized.Limit)
-	if err != nil {
-		return rejectedWindows(err.Error()), nil
-	}
-	summary := fmt.Sprintf("returned review window with %d due cards", len(window.DueCards))
-	if normalized.Action == WindowsActionDueCards {
-		summary = fmt.Sprintf("returned %d due cards", len(window.DueCards))
-	}
-	return WindowsTaskResult{
-		BaseResult: BaseResult{Summary: summary},
-		Now:        formatInstant(window.Now),
-		Cards:      toCardsWithScheduleDTO(window.DueCards),
-	}, nil
+	return withStudyService(ctx, config, func(service *study.Service) (WindowsTaskResult, error) {
+		window, err := service.ReviewWindow(ctx, normalized.Limit)
+		if err != nil {
+			return rejectedWindows(err.Error()), nil
+		}
+		summary := fmt.Sprintf("returned review window with %d due cards", len(window.DueCards))
+		if normalized.Action == WindowsActionDueCards {
+			summary = fmt.Sprintf("returned %d due cards", len(window.DueCards))
+		}
+		return WindowsTaskResult{
+			BaseResult: BaseResult{Summary: summary},
+			Now:        formatInstant(window.Now),
+			Cards:      toCardsWithScheduleDTO(window.DueCards),
+		}, nil
+	})
 }
 
 type normalizedWindowsTaskRequest struct {
@@ -96,11 +90,5 @@ func normalizeWindowsTaskRequest(request WindowsTaskRequest) (normalizedWindowsT
 }
 
 func rejectedWindows(reason string) WindowsTaskResult {
-	return WindowsTaskResult{
-		BaseResult: BaseResult{
-			Rejected:        true,
-			RejectionReason: reason,
-			Summary:         reason,
-		},
-	}
+	return WindowsTaskResult{BaseResult: rejectedBase(reason)}
 }

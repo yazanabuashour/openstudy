@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/yazanabuashour/openstudy/internal/localruntime"
 	"github.com/yazanabuashour/openstudy/internal/study"
 )
 
@@ -58,84 +57,74 @@ func RunReviewTask(ctx context.Context, config Config, request ReviewTaskRequest
 		}
 	}
 
-	runtime, err := localruntime.Open(ctx, localruntime.Config(config))
-	if err != nil {
-		return ReviewTaskResult{}, err
-	}
-	defer func() {
-		_ = runtime.Close()
-	}()
-
-	switch normalized.Action {
-	case ReviewActionStartSession:
-		session, err := runtime.Service.StartReviewSession(ctx, study.StartReviewSessionInput{
-			CardLimit:        normalized.CardLimit,
-			TimeLimitSeconds: normalized.TimeLimitSeconds,
-		})
-		if err != nil {
-			return rejectedReview(err.Error()), nil
+	return withStudyService(ctx, config, func(service *study.Service) (ReviewTaskResult, error) {
+		switch normalized.Action {
+		case ReviewActionStartSession:
+			session, err := service.StartReviewSession(ctx, study.StartReviewSessionInput{
+				CardLimit:        normalized.CardLimit,
+				TimeLimitSeconds: normalized.TimeLimitSeconds,
+			})
+			if err != nil {
+				return rejectedReview(err.Error()), nil
+			}
+			cardLimit := defaultLimit
+			if normalized.CardLimit != nil {
+				cardLimit = *normalized.CardLimit
+			}
+			window, err := service.ReviewWindow(ctx, cardLimit)
+			if err != nil {
+				return rejectedReview(err.Error()), nil
+			}
+			dto := toReviewSessionDTO(session)
+			return ReviewTaskResult{
+				BaseResult: BaseResult{Summary: fmt.Sprintf("started review session %d", session.ID)},
+				Session:    &dto,
+				Cards:      toCardsWithScheduleDTO(window.DueCards),
+			}, nil
+		case ReviewActionRecordAnswer:
+			result, err := service.RecordReview(ctx, study.RecordReviewInput{
+				SessionID:       normalized.SessionID,
+				CardID:          normalized.CardID,
+				AnsweredAt:      normalized.AnsweredAt,
+				AnswerText:      &normalized.AnswerText,
+				Rating:          study.Rating(normalized.Rating),
+				Grader:          study.Grader(normalized.Grader),
+				EvidenceSummary: trimOptional(normalized.EvidenceSummary),
+			})
+			if err != nil {
+				return rejectedReview(err.Error()), nil
+			}
+			attemptDTO := toReviewAttemptDTO(result.Attempt)
+			transitionDTO := toSchedulerTransitionDTO(result.Transition)
+			return ReviewTaskResult{
+				BaseResult: BaseResult{Summary: fmt.Sprintf("recorded answer for card %d", result.Attempt.CardID)},
+				Attempt:    &attemptDTO,
+				Transition: &transitionDTO,
+			}, nil
+		case ReviewActionSummary:
+			summary, err := service.ReviewSessionSummary(ctx, normalized.SessionID)
+			if err != nil {
+				return rejectedReview(err.Error()), nil
+			}
+			dto := toReviewSummaryDTO(summary)
+			return ReviewTaskResult{
+				BaseResult: BaseResult{Summary: fmt.Sprintf("returned review session %d summary", normalized.SessionID)},
+				SummaryDTO: &dto,
+			}, nil
+		case ReviewActionFinish:
+			session, err := service.FinishReviewSession(ctx, normalized.SessionID)
+			if err != nil {
+				return rejectedReview(err.Error()), nil
+			}
+			dto := toReviewSessionDTO(session)
+			return ReviewTaskResult{
+				BaseResult: BaseResult{Summary: fmt.Sprintf("finished review session %d", normalized.SessionID)},
+				Session:    &dto,
+			}, nil
+		default:
+			return ReviewTaskResult{}, fmt.Errorf("unsupported review task action %q", normalized.Action)
 		}
-		cardLimit := defaultLimit
-		if normalized.CardLimit != nil {
-			cardLimit = *normalized.CardLimit
-		}
-		window, err := runtime.Service.ReviewWindow(ctx, cardLimit)
-		if err != nil {
-			return rejectedReview(err.Error()), nil
-		}
-		dto := toReviewSessionDTO(session)
-		return ReviewTaskResult{
-			BaseResult: BaseResult{Summary: fmt.Sprintf("started review session %d", session.ID)},
-			Session:    &dto,
-			Cards:      toCardsWithScheduleDTO(window.DueCards),
-		}, nil
-	case ReviewActionRecordAnswer:
-		result, err := runtime.Service.RecordReview(ctx, study.RecordReviewInput{
-			SessionID:       normalized.SessionID,
-			CardID:          normalized.CardID,
-			AnsweredAt:      normalized.AnsweredAt,
-			AnswerText:      &normalized.AnswerText,
-			Rating:          study.Rating(normalized.Rating),
-			Grader:          study.Grader(normalized.Grader),
-			EvidenceSummary: trimOptional(normalized.EvidenceSummary),
-		})
-		if err != nil {
-			return rejectedReview(err.Error()), nil
-		}
-		transition, err := study.ExplainReviewAttempt(result.Attempt)
-		if err != nil {
-			return ReviewTaskResult{}, err
-		}
-		attemptDTO := toReviewAttemptDTO(result.Attempt)
-		transitionDTO := toSchedulerTransitionDTO(transition)
-		return ReviewTaskResult{
-			BaseResult: BaseResult{Summary: fmt.Sprintf("recorded answer for card %d", result.Attempt.CardID)},
-			Attempt:    &attemptDTO,
-			Transition: &transitionDTO,
-		}, nil
-	case ReviewActionSummary:
-		summary, err := runtime.Service.ReviewSessionSummary(ctx, normalized.SessionID)
-		if err != nil {
-			return rejectedReview(err.Error()), nil
-		}
-		dto := toReviewSummaryDTO(summary)
-		return ReviewTaskResult{
-			BaseResult: BaseResult{Summary: fmt.Sprintf("returned review session %d summary", normalized.SessionID)},
-			SummaryDTO: &dto,
-		}, nil
-	case ReviewActionFinish:
-		session, err := runtime.Service.FinishReviewSession(ctx, normalized.SessionID)
-		if err != nil {
-			return rejectedReview(err.Error()), nil
-		}
-		dto := toReviewSessionDTO(session)
-		return ReviewTaskResult{
-			BaseResult: BaseResult{Summary: fmt.Sprintf("finished review session %d", normalized.SessionID)},
-			Session:    &dto,
-		}, nil
-	default:
-		return ReviewTaskResult{}, fmt.Errorf("unsupported review task action %q", normalized.Action)
-	}
+	})
 }
 
 type normalizedReviewTaskRequest struct {
@@ -243,11 +232,5 @@ func validReviewGrader(value string) bool {
 }
 
 func rejectedReview(reason string) ReviewTaskResult {
-	return ReviewTaskResult{
-		BaseResult: BaseResult{
-			Rejected:        true,
-			RejectionReason: reason,
-			Summary:         reason,
-		},
-	}
+	return ReviewTaskResult{BaseResult: rejectedBase(reason)}
 }

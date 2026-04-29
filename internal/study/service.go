@@ -2,7 +2,6 @@ package study
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -63,6 +62,30 @@ func (s *Service) CreateCard(ctx context.Context, input CreateCardInput) (Card, 
 
 func (s *Service) ListCards(ctx context.Context) ([]Card, error) {
 	return s.repo.ListCards(ctx)
+}
+
+func (s *Service) ListCardsWithSchedules(ctx context.Context, input ListCardsInput) ([]CardWithSchedule, error) {
+	status := input.Status
+	if status == "" {
+		status = CardListStatusActive
+	}
+	if input.Limit <= 0 {
+		return nil, errors.New("limit must be positive")
+	}
+
+	filter := ListCardsFilter{Limit: input.Limit}
+	switch status {
+	case CardListStatusActive:
+		value := CardStatusActive
+		filter.Status = &value
+	case CardListStatusArchived:
+		value := CardStatusArchived
+		filter.Status = &value
+	case CardListStatusAll:
+	default:
+		return nil, fmt.Errorf("unsupported card list status %q", status)
+	}
+	return s.repo.ListCardsWithSchedules(ctx, filter)
 }
 
 func (s *Service) GetCard(ctx context.Context, id int64) (*Card, error) {
@@ -227,51 +250,32 @@ func (s *Service) RecordReview(ctx context.Context, input RecordReviewInput) (Re
 
 	info := s.fsrs.Next(fsrsCardFromSchedule(*before), answeredAt, fsrsRating(input.Rating))
 	after := scheduleFromFSRSCard(input.CardID, info.Card)
-	beforeJSON, afterJSON, err := marshalTransition(*before, after)
-	if err != nil {
-		return RecordReviewResult{}, err
-	}
 
 	attempt, err := s.repo.RecordReviewAttempt(ctx, RecordReviewAttemptParams{
-		SessionID:          input.SessionID,
-		CardID:             input.CardID,
-		AnsweredAt:         answeredAt,
-		AnswerText:         trimOptional(input.AnswerText),
-		Rating:             input.Rating,
-		Grader:             input.Grader,
-		EvidenceSummary:    trimOptional(input.EvidenceSummary),
-		ScheduleBefore:     *before,
-		ScheduleAfter:      after,
-		ScheduleBeforeJSON: beforeJSON,
-		ScheduleAfterJSON:  afterJSON,
+		SessionID:       input.SessionID,
+		CardID:          input.CardID,
+		AnsweredAt:      answeredAt,
+		AnswerText:      trimOptional(input.AnswerText),
+		Rating:          input.Rating,
+		Grader:          input.Grader,
+		EvidenceSummary: trimOptional(input.EvidenceSummary),
+		ScheduleBefore:  *before,
+		ScheduleAfter:   after,
 	})
 	if err != nil {
 		return RecordReviewResult{}, err
 	}
 
-	return RecordReviewResult{
-		Attempt:        attempt,
-		Before:         *before,
-		After:          after,
-		TransitionJSON: afterJSON,
-	}, nil
-}
-
-func ExplainReviewAttempt(attempt ReviewAttempt) (SchedulerTransition, error) {
-	var before CardSchedule
-	if err := json.Unmarshal([]byte(attempt.ScheduleBeforeJSON), &before); err != nil {
-		return SchedulerTransition{}, fmt.Errorf("parse schedule before snapshot: %w", err)
-	}
-	var after CardSchedule
-	if err := json.Unmarshal([]byte(attempt.ScheduleAfterJSON), &after); err != nil {
-		return SchedulerTransition{}, fmt.Errorf("parse schedule after snapshot: %w", err)
-	}
-	return SchedulerTransition{
+	transition := SchedulerTransition{
 		AttemptID: attempt.ID,
 		CardID:    attempt.CardID,
 		Rating:    attempt.Rating,
-		Before:    before,
+		Before:    *before,
 		After:     after,
+	}
+	return RecordReviewResult{
+		Attempt:    attempt,
+		Transition: transition,
 	}, nil
 }
 
@@ -363,16 +367,4 @@ func trimOptional(value *string) *string {
 		return nil
 	}
 	return &trimmed
-}
-
-func marshalTransition(before, after CardSchedule) (string, string, error) {
-	beforeJSON, err := json.Marshal(before)
-	if err != nil {
-		return "", "", err
-	}
-	afterJSON, err := json.Marshal(after)
-	if err != nil {
-		return "", "", err
-	}
-	return string(beforeJSON), string(afterJSON), nil
 }

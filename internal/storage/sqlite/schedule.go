@@ -21,6 +21,45 @@ func (r *Repository) GetCardSchedule(ctx context.Context, cardID int64) (*study.
 	return &schedule, nil
 }
 
+func (r *Repository) ListCardsWithSchedules(ctx context.Context, filter study.ListCardsFilter) ([]study.CardWithSchedule, error) {
+	status := ""
+	if filter.Status != nil {
+		status = string(*filter.Status)
+	}
+	rows, err := r.db.QueryContext(ctx, `
+SELECT c.id, c.status, c.front, c.back, c.created_at, c.updated_at, c.archived_at,
+       s.card_id, s.due_at, s.last_reviewed_at, s.reps, s.lapses, s.stability, s.difficulty,
+       s.scheduled_days, s.elapsed_days, s.fsrs_state
+FROM cards c
+JOIN card_schedule s ON s.card_id = c.id
+WHERE (? = '' OR c.status = ?)
+ORDER BY c.id ASC
+LIMIT ?`,
+		status,
+		status,
+		filter.Limit,
+	)
+	if err != nil {
+		return nil, wrapDatabaseError("list cards with schedules", err)
+	}
+	defer func() {
+		_ = rows.Close()
+	}()
+
+	cards := []study.CardWithSchedule{}
+	for rows.Next() {
+		card, schedule, err := scanCardWithSchedule(rows)
+		if err != nil {
+			return nil, err
+		}
+		cards = append(cards, study.CardWithSchedule{Card: card, Schedule: schedule})
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return cards, nil
+}
+
 func (r *Repository) ListDueCards(ctx context.Context, filter study.DueCardFilter) ([]study.CardWithSchedule, error) {
 	rows, err := r.db.QueryContext(ctx, `
 SELECT c.id, c.status, c.front, c.back, c.created_at, c.updated_at, c.archived_at,

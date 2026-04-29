@@ -112,8 +112,6 @@ func scanReviewAttempt(scanner interface {
 		&attempt.Rating,
 		&attempt.Grader,
 		&evidenceSummary,
-		&attempt.ScheduleBeforeJSON,
-		&attempt.ScheduleAfterJSON,
 	); err != nil {
 		return study.ReviewAttempt{}, err
 	}

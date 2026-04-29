@@ -2,7 +2,6 @@ package sqlite
 
 import (
 	"context"
-	"encoding/json"
 	"path/filepath"
 	"testing"
 	"time"
@@ -169,44 +168,28 @@ func TestServiceRecordReviewPersistsAttemptAndSchedule(t *testing.T) {
 	if result.Attempt.ID == 0 {
 		t.Fatal("expected persisted attempt id")
 	}
-	if result.Before.CardID != card.ID || result.After.CardID != card.ID {
-		t.Fatalf("transition card ids = %d -> %d", result.Before.CardID, result.After.CardID)
+	if result.Transition.AttemptID != result.Attempt.ID || result.Transition.Rating != study.RatingGood {
+		t.Fatalf("transition = %#v", result.Transition)
 	}
-	if result.After.Reps != 1 {
-		t.Fatalf("after reps = %d, want 1", result.After.Reps)
+	if result.Transition.Before.CardID != card.ID || result.Transition.After.CardID != card.ID {
+		t.Fatalf("transition card ids = %d -> %d", result.Transition.Before.CardID, result.Transition.After.CardID)
 	}
-	if result.After.LastReviewedAt == nil || !result.After.LastReviewedAt.Equal(answeredAt) {
-		t.Fatalf("last reviewed at = %#v, want %s", result.After.LastReviewedAt, answeredAt)
+	if result.Transition.After.Reps != 1 {
+		t.Fatalf("after reps = %d, want 1", result.Transition.After.Reps)
 	}
-	if !result.After.DueAt.After(answeredAt) {
-		t.Fatalf("due at = %s, want after %s", result.After.DueAt, answeredAt)
+	if result.Transition.After.LastReviewedAt == nil || !result.Transition.After.LastReviewedAt.Equal(answeredAt) {
+		t.Fatalf("last reviewed at = %#v, want %s", result.Transition.After.LastReviewedAt, answeredAt)
+	}
+	if !result.Transition.After.DueAt.After(answeredAt) {
+		t.Fatalf("due at = %s, want after %s", result.Transition.After.DueAt, answeredAt)
 	}
 
 	persisted, err := repo.GetCardSchedule(ctx, card.ID)
 	if err != nil {
 		t.Fatalf("get schedule: %v", err)
 	}
-	if persisted == nil || persisted.Reps != result.After.Reps || !persisted.DueAt.Equal(result.After.DueAt) {
-		t.Fatalf("persisted schedule = %#v, result after = %#v", persisted, result.After)
-	}
-
-	var before, after study.CardSchedule
-	if err := json.Unmarshal([]byte(result.Attempt.ScheduleBeforeJSON), &before); err != nil {
-		t.Fatalf("unmarshal before JSON: %v", err)
-	}
-	if err := json.Unmarshal([]byte(result.Attempt.ScheduleAfterJSON), &after); err != nil {
-		t.Fatalf("unmarshal after JSON: %v", err)
-	}
-	if before.Reps != 0 || after.Reps != 1 {
-		t.Fatalf("snapshot reps = %d -> %d", before.Reps, after.Reps)
-	}
-
-	transition, err := study.ExplainReviewAttempt(result.Attempt)
-	if err != nil {
-		t.Fatalf("explain review attempt: %v", err)
-	}
-	if transition.AttemptID != result.Attempt.ID || transition.Rating != study.RatingGood {
-		t.Fatalf("transition = %#v", transition)
+	if persisted == nil || persisted.Reps != result.Transition.After.Reps || !persisted.DueAt.Equal(result.Transition.After.DueAt) {
+		t.Fatalf("persisted schedule = %#v, result after = %#v", persisted, result.Transition.After)
 	}
 
 	summary, err := service.ReviewSessionSummary(ctx, session.ID)
@@ -266,6 +249,61 @@ func TestServiceReviewWindowAndValidation(t *testing.T) {
 		Grader:    study.GraderSelf,
 	}); err == nil {
 		t.Fatal("expected completed session review to fail")
+	}
+}
+
+func TestServiceListCardsWithSchedulesFilteringAndLimit(t *testing.T) {
+	ctx := context.Background()
+	repo := newTestRepository(t)
+	now := time.Date(2026, 4, 26, 12, 0, 0, 0, time.UTC)
+	service := study.NewService(repo, study.WithClock(func() time.Time { return now }))
+
+	first, err := service.CreateCard(ctx, study.CreateCardInput{Front: "First active?", Back: "Yes"})
+	if err != nil {
+		t.Fatalf("create first card: %v", err)
+	}
+	second, err := service.CreateCard(ctx, study.CreateCardInput{Front: "Second active?", Back: "Yes"})
+	if err != nil {
+		t.Fatalf("create second card: %v", err)
+	}
+	archived, err := service.CreateCard(ctx, study.CreateCardInput{Front: "Archived?", Back: "Yes"})
+	if err != nil {
+		t.Fatalf("create archived card: %v", err)
+	}
+	if _, err := service.ArchiveCard(ctx, archived.ID); err != nil {
+		t.Fatalf("archive card: %v", err)
+	}
+
+	active, err := service.ListCardsWithSchedules(ctx, study.ListCardsInput{
+		Status: study.CardListStatusActive,
+		Limit:  1,
+	})
+	if err != nil {
+		t.Fatalf("list active cards: %v", err)
+	}
+	if len(active) != 1 || active[0].ID != first.ID || active[0].Schedule.CardID != first.ID {
+		t.Fatalf("active cards = %#v", active)
+	}
+
+	all, err := service.ListCardsWithSchedules(ctx, study.ListCardsInput{
+		Status: study.CardListStatusAll,
+		Limit:  10,
+	})
+	if err != nil {
+		t.Fatalf("list all cards: %v", err)
+	}
+	if len(all) != 3 || all[0].ID != first.ID || all[1].ID != second.ID || all[2].ID != archived.ID {
+		t.Fatalf("all cards = %#v", all)
+	}
+	if all[2].Status != study.CardStatusArchived || all[2].Schedule.CardID != archived.ID {
+		t.Fatalf("archived card with schedule = %#v", all[2])
+	}
+
+	if _, err := service.ListCardsWithSchedules(ctx, study.ListCardsInput{Status: study.CardListStatus("missing"), Limit: 10}); err == nil {
+		t.Fatal("expected unsupported status to fail")
+	}
+	if _, err := service.ListCardsWithSchedules(ctx, study.ListCardsInput{Status: study.CardListStatusActive}); err == nil {
+		t.Fatal("expected missing limit to fail")
 	}
 }
 

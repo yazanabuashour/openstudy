@@ -3,6 +3,7 @@ package sqlite
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
 
@@ -278,6 +279,10 @@ func (r *Repository) RecordReviewAttempt(ctx context.Context, params study.Recor
 	}
 	defer rollbackUnlessCommitted(tx)
 
+	beforeJSON, afterJSON, err := marshalScheduleSnapshots(params.ScheduleBefore, params.ScheduleAfter)
+	if err != nil {
+		return study.ReviewAttempt{}, err
+	}
 	if err := updateSchedule(ctx, tx, params.ScheduleAfter); err != nil {
 		return study.ReviewAttempt{}, err
 	}
@@ -294,8 +299,8 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		params.Rating,
 		params.Grader,
 		nullableString(params.EvidenceSummary),
-		params.ScheduleBeforeJSON,
-		params.ScheduleAfterJSON,
+		beforeJSON,
+		afterJSON,
 	)
 	if err != nil {
 		return study.ReviewAttempt{}, wrapDatabaseError("record review attempt", err)
@@ -328,9 +333,20 @@ WHERE id = ?`, id)
 
 func (r *Repository) getReviewAttempt(ctx context.Context, id int64) (study.ReviewAttempt, error) {
 	row := r.db.QueryRowContext(ctx, `
-SELECT id, session_id, card_id, answered_at, answer_text, rating, grader, evidence_summary,
-       schedule_before_json, schedule_after_json
+SELECT id, session_id, card_id, answered_at, answer_text, rating, grader, evidence_summary
 FROM review_attempts
 WHERE id = ?`, id)
 	return scanReviewAttempt(row)
+}
+
+func marshalScheduleSnapshots(before, after study.CardSchedule) (string, string, error) {
+	beforeJSON, err := json.Marshal(before)
+	if err != nil {
+		return "", "", err
+	}
+	afterJSON, err := json.Marshal(after)
+	if err != nil {
+		return "", "", err
+	}
+	return string(beforeJSON), string(afterJSON), nil
 }

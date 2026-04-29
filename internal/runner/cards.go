@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/yazanabuashour/openstudy/internal/localruntime"
 	"github.com/yazanabuashour/openstudy/internal/study"
 )
 
@@ -47,94 +46,72 @@ func RunCardsTask(ctx context.Context, config Config, request CardsTaskRequest) 
 		return CardsTaskResult{BaseResult: validBase()}, nil
 	}
 
-	runtime, err := localruntime.Open(ctx, localruntime.Config(config))
-	if err != nil {
-		return CardsTaskResult{}, err
-	}
-	defer func() {
-		_ = runtime.Close()
-	}()
-
-	switch normalized.Action {
-	case CardsActionCreate:
-		card, err := runtime.Service.CreateCard(ctx, study.CreateCardInput{
-			Front: normalized.Card.Front,
-			Back:  normalized.Card.Back,
-		})
-		if err != nil {
-			return rejectedCards(err.Error()), nil
+	return withStudyService(ctx, config, func(service *study.Service) (CardsTaskResult, error) {
+		switch normalized.Action {
+		case CardsActionCreate:
+			card, err := service.CreateCard(ctx, study.CreateCardInput{
+				Front: normalized.Card.Front,
+				Back:  normalized.Card.Back,
+			})
+			if err != nil {
+				return rejectedCards(err.Error()), nil
+			}
+			schedule, err := service.CardSchedule(ctx, card.ID)
+			if err != nil {
+				return CardsTaskResult{}, err
+			}
+			dto := toCardDTO(card, schedule)
+			return CardsTaskResult{
+				BaseResult: BaseResult{Summary: fmt.Sprintf("created card %d", card.ID)},
+				Card:       &dto,
+			}, nil
+		case CardsActionList:
+			cards, err := service.ListCardsWithSchedules(ctx, study.ListCardsInput{
+				Status: study.CardListStatus(normalized.Status),
+				Limit:  normalized.Limit,
+			})
+			if err != nil {
+				return CardsTaskResult{}, err
+			}
+			return CardsTaskResult{
+				BaseResult: BaseResult{Summary: fmt.Sprintf("returned %d cards", len(cards))},
+				Cards:      toCardsWithScheduleDTO(cards),
+			}, nil
+		case CardsActionGet:
+			card, err := service.GetCard(ctx, normalized.CardID)
+			if err != nil {
+				return rejectedCards(err.Error()), nil
+			}
+			if card == nil {
+				return rejectedCards(fmt.Sprintf("card %d not found", normalized.CardID)), nil
+			}
+			schedule, err := service.CardSchedule(ctx, card.ID)
+			if err != nil {
+				return CardsTaskResult{}, err
+			}
+			dto := toCardDTO(*card, schedule)
+			return CardsTaskResult{
+				BaseResult: BaseResult{Summary: fmt.Sprintf("returned card %d", card.ID)},
+				Card:       &dto,
+			}, nil
+		case CardsActionArchive:
+			card, err := service.ArchiveCard(ctx, normalized.CardID)
+			if err != nil {
+				return rejectedCards(err.Error()), nil
+			}
+			schedule, err := service.CardSchedule(ctx, card.ID)
+			if err != nil {
+				return CardsTaskResult{}, err
+			}
+			dto := toCardDTO(card, schedule)
+			return CardsTaskResult{
+				BaseResult: BaseResult{Summary: fmt.Sprintf("archived card %d", card.ID)},
+				Card:       &dto,
+			}, nil
+		default:
+			return CardsTaskResult{}, fmt.Errorf("unsupported cards task action %q", normalized.Action)
 		}
-		schedule, err := runtime.Service.CardSchedule(ctx, card.ID)
-		if err != nil {
-			return CardsTaskResult{}, err
-		}
-		dto := toCardDTO(card, schedule)
-		return CardsTaskResult{
-			BaseResult: BaseResult{Summary: fmt.Sprintf("created card %d", card.ID)},
-			Card:       &dto,
-		}, nil
-	case CardsActionList:
-		cards, err := runtime.Service.ListCards(ctx)
-		if err != nil {
-			return CardsTaskResult{}, err
-		}
-		filtered := filterCards(cards, normalized.Status, normalized.Limit)
-		cardDTOs, err := cardsWithSchedules(ctx, runtime.Service, filtered)
-		if err != nil {
-			return CardsTaskResult{}, err
-		}
-		return CardsTaskResult{
-			BaseResult: BaseResult{Summary: fmt.Sprintf("returned %d cards", len(filtered))},
-			Cards:      cardDTOs,
-		}, nil
-	case CardsActionGet:
-		card, err := runtime.Service.GetCard(ctx, normalized.CardID)
-		if err != nil {
-			return rejectedCards(err.Error()), nil
-		}
-		if card == nil {
-			return rejectedCards(fmt.Sprintf("card %d not found", normalized.CardID)), nil
-		}
-		schedule, err := runtime.Service.CardSchedule(ctx, card.ID)
-		if err != nil {
-			return CardsTaskResult{}, err
-		}
-		dto := toCardDTO(*card, schedule)
-		return CardsTaskResult{
-			BaseResult: BaseResult{Summary: fmt.Sprintf("returned card %d", card.ID)},
-			Card:       &dto,
-		}, nil
-	case CardsActionArchive:
-		card, err := runtime.Service.ArchiveCard(ctx, normalized.CardID)
-		if err != nil {
-			return rejectedCards(err.Error()), nil
-		}
-		schedule, err := runtime.Service.CardSchedule(ctx, card.ID)
-		if err != nil {
-			return CardsTaskResult{}, err
-		}
-		dto := toCardDTO(card, schedule)
-		return CardsTaskResult{
-			BaseResult: BaseResult{Summary: fmt.Sprintf("archived card %d", card.ID)},
-			Card:       &dto,
-		}, nil
-	default:
-		return CardsTaskResult{}, fmt.Errorf("unsupported cards task action %q", normalized.Action)
-	}
-}
-
-func cardsWithSchedules(ctx context.Context, service interface {
-	CardSchedule(context.Context, int64) (*study.CardSchedule, error)
-}, cards []study.Card) ([]CardDTO, error) {
-	out := make([]CardDTO, 0, len(cards))
-	for _, card := range cards {
-		schedule, err := service.CardSchedule(ctx, card.ID)
-		if err != nil {
-			return nil, err
-		}
-		out = append(out, toCardDTO(card, schedule))
-	}
-	return out, nil
+	})
 }
 
 type normalizedCardsTaskRequest struct {
@@ -198,26 +175,6 @@ func normalizeCardsTaskRequest(request CardsTaskRequest) (normalizedCardsTaskReq
 	}
 }
 
-func filterCards(cards []study.Card, status string, limit int) []study.Card {
-	out := make([]study.Card, 0, len(cards))
-	for _, card := range cards {
-		if status != CardsStatusAll && string(card.Status) != status {
-			continue
-		}
-		out = append(out, card)
-		if limit > 0 && len(out) >= limit {
-			return out
-		}
-	}
-	return out
-}
-
 func rejectedCards(reason string) CardsTaskResult {
-	return CardsTaskResult{
-		BaseResult: BaseResult{
-			Rejected:        true,
-			RejectionReason: reason,
-			Summary:         reason,
-		},
-	}
+	return CardsTaskResult{BaseResult: rejectedBase(reason)}
 }

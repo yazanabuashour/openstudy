@@ -12,6 +12,14 @@ const (
 	CardStatusArchived CardStatus = "archived"
 )
 
+type CardListStatus string
+
+const (
+	CardListStatusActive   CardListStatus = "active"
+	CardListStatusArchived CardListStatus = "archived"
+	CardListStatusAll      CardListStatus = "all"
+)
+
 type Rating string
 
 const (
@@ -83,16 +91,14 @@ type ReviewSession struct {
 }
 
 type ReviewAttempt struct {
-	ID                 int64
-	SessionID          int64
-	CardID             int64
-	AnsweredAt         time.Time
-	AnswerText         *string
-	Rating             Rating
-	Grader             Grader
-	EvidenceSummary    *string
-	ScheduleBeforeJSON string
-	ScheduleAfterJSON  string
+	ID              int64
+	SessionID       int64
+	CardID          int64
+	AnsweredAt      time.Time
+	AnswerText      *string
+	Rating          Rating
+	Grader          Grader
+	EvidenceSummary *string
 }
 
 type ReviewSessionSummary struct {
@@ -112,6 +118,11 @@ type SchedulerTransition struct {
 type CreateCardInput struct {
 	Front string
 	Back  string
+}
+
+type ListCardsInput struct {
+	Status CardListStatus
+	Limit  int
 }
 
 type AttachSourceInput struct {
@@ -138,10 +149,13 @@ type RecordReviewInput struct {
 }
 
 type RecordReviewResult struct {
-	Attempt        ReviewAttempt
-	Before         CardSchedule
-	After          CardSchedule
-	TransitionJSON string
+	Attempt    ReviewAttempt
+	Transition SchedulerTransition
+}
+
+type ListCardsFilter struct {
+	Status *CardStatus
+	Limit  int
 }
 
 type DueCardFilter struct {
@@ -157,6 +171,7 @@ type ReviewWindow struct {
 type Repository interface {
 	CreateCard(ctx context.Context, params CreateCardParams) (Card, error)
 	ListCards(ctx context.Context) ([]Card, error)
+	ListCardsWithSchedules(ctx context.Context, filter ListCardsFilter) ([]CardWithSchedule, error)
 	GetCard(ctx context.Context, id int64) (*Card, error)
 	ArchiveCard(ctx context.Context, params ArchiveCardParams) (Card, error)
 	AddSource(ctx context.Context, params AddSourceParams) (SourceReference, error)
@@ -203,15 +218,13 @@ type FinishReviewSessionParams struct {
 }
 
 type RecordReviewAttemptParams struct {
-	SessionID          int64
-	CardID             int64
-	AnsweredAt         time.Time
-	AnswerText         *string
-	Rating             Rating
-	Grader             Grader
-	EvidenceSummary    *string
-	ScheduleBefore     CardSchedule
-	ScheduleAfter      CardSchedule
-	ScheduleBeforeJSON string
-	ScheduleAfterJSON  string
+	SessionID       int64
+	CardID          int64
+	AnsweredAt      time.Time
+	AnswerText      *string
+	Rating          Rating
+	Grader          Grader
+	EvidenceSummary *string
+	ScheduleBefore  CardSchedule
+	ScheduleAfter   CardSchedule
 }

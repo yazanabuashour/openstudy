@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/yazanabuashour/openstudy/internal/localruntime"
 	"github.com/yazanabuashour/openstudy/internal/study"
 )
 
@@ -42,43 +41,37 @@ func RunSourcesTask(ctx context.Context, config Config, request SourcesTaskReque
 		return SourcesTaskResult{BaseResult: validBase()}, nil
 	}
 
-	runtime, err := localruntime.Open(ctx, localruntime.Config(config))
-	if err != nil {
-		return SourcesTaskResult{}, err
-	}
-	defer func() {
-		_ = runtime.Close()
-	}()
-
-	switch normalized.Action {
-	case SourcesActionAttach:
-		source, err := runtime.Service.AttachSource(ctx, study.AttachSourceInput{
-			CardID:       normalized.CardID,
-			SourceSystem: normalized.Source.SourceSystem,
-			SourceKey:    normalized.Source.SourceKey,
-			SourceAnchor: trimOptional(normalized.Source.SourceAnchor),
-			Label:        trimOptional(normalized.Source.Label),
-		})
-		if err != nil {
-			return rejectedSources(err.Error()), nil
+	return withStudyService(ctx, config, func(service *study.Service) (SourcesTaskResult, error) {
+		switch normalized.Action {
+		case SourcesActionAttach:
+			source, err := service.AttachSource(ctx, study.AttachSourceInput{
+				CardID:       normalized.CardID,
+				SourceSystem: normalized.Source.SourceSystem,
+				SourceKey:    normalized.Source.SourceKey,
+				SourceAnchor: trimOptional(normalized.Source.SourceAnchor),
+				Label:        trimOptional(normalized.Source.Label),
+			})
+			if err != nil {
+				return rejectedSources(err.Error()), nil
+			}
+			dto := toSourceDTO(source)
+			return SourcesTaskResult{
+				BaseResult: BaseResult{Summary: fmt.Sprintf("attached source %d to card %d", source.ID, source.CardID)},
+				Source:     &dto,
+			}, nil
+		case SourcesActionList:
+			sources, err := service.ListSources(ctx, normalized.CardID)
+			if err != nil {
+				return rejectedSources(err.Error()), nil
+			}
+			return SourcesTaskResult{
+				BaseResult: BaseResult{Summary: fmt.Sprintf("returned %d sources", len(sources))},
+				Sources:    toSourcesDTO(sources),
+			}, nil
+		default:
+			return SourcesTaskResult{}, fmt.Errorf("unsupported sources task action %q", normalized.Action)
 		}
-		dto := toSourceDTO(source)
-		return SourcesTaskResult{
-			BaseResult: BaseResult{Summary: fmt.Sprintf("attached source %d to card %d", source.ID, source.CardID)},
-			Source:     &dto,
-		}, nil
-	case SourcesActionList:
-		sources, err := runtime.Service.ListSources(ctx, normalized.CardID)
-		if err != nil {
-			return rejectedSources(err.Error()), nil
-		}
-		return SourcesTaskResult{
-			BaseResult: BaseResult{Summary: fmt.Sprintf("returned %d sources", len(sources))},
-			Sources:    toSourcesDTO(sources),
-		}, nil
-	default:
-		return SourcesTaskResult{}, fmt.Errorf("unsupported sources task action %q", normalized.Action)
-	}
+	})
 }
 
 type normalizedSourcesTaskRequest struct {
@@ -127,11 +120,5 @@ func normalizeSourcesTaskRequest(request SourcesTaskRequest) (normalizedSourcesT
 }
 
 func rejectedSources(reason string) SourcesTaskResult {
-	return SourcesTaskResult{
-		BaseResult: BaseResult{
-			Rejected:        true,
-			RejectionReason: reason,
-			Summary:         reason,
-		},
-	}
+	return SourcesTaskResult{BaseResult: rejectedBase(reason)}
 }
